@@ -9,6 +9,9 @@ G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 462.52 #J/kgK specific gas constant for water
 D_0 = 1.00*10**-5 #initial diameter of droplet
+A = 0.06 #given constant in dispersion coefficient equation
+B = 0.92 #given constant in dispersion coefficient equation
+#NUMBER_OF_DROPLETS =  #number of droplets emitted (q)
 
 def terminal_velocity(d,v_x):
     ''' This function estimates the terminal velocity (units um/s ?) of a respitory droplet as a function of
@@ -79,22 +82,26 @@ def x_position(x_0,v_x,time):
     Returns: 
         x_d (float): returns the horizontal distance of the drop in meters.  
     '''	
-    x_pos = x_0 + v_t*time
-    #if x_0 == 0:
-   	    #return 0
-   	#return x_0 + x_position(x_0 + v_x*time)
-   	#print(x_position(x_0,v_x,time))
+    x_pos = x_0 + v_x*time
+    print(x_pos)
+    #return x_pos
+    return;
 
-    #for i in range(-0.995,time,0.005)
-        #if x_0 == 0:
-            #x_pos = v_x*t
-   	    #else x_pos = x_0 + v_x*t
-        x_pos = x_init(n-1) + v_x*time
-    	distance = sum(x_pos)
-        print(distance)
+def concentation(x_away,time):
+	sigma = A*(x_away**B)
+	x_d = x_position(v_x,time) #not sure
+	#z_d = #how do I calculate this? Projectile motion? 
+	conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2)
 
+def exposure_per_breath(con,time): #need to integrate above function also depends on respiratory rate
+
+#def total_exposure(concentation,num_breaths):
+    total_dosage = exposure_per_breath(x,t)*num_breaths
+    print(total_dosage)
+    return;
 
 if __name__ == '__main__':
     #terminal_velocity(0.00005,1)
     #droplet_diameter(0.04,60,230)
-    x_position(0,1,0.01)
+    x_position(0,1,0.005)
+
