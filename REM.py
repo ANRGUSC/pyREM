@@ -33,7 +33,6 @@ def terminal_velocity(d,v_x):
     return;
 
 
-
 def droplet_diameter(time,r_h,temp):
     ''' This function estimates the droplet's diameter in meters, as a function of time (s), the relative hummidity (RH),
     and the temperature, T in Kelvin.
@@ -61,7 +60,13 @@ def droplet_diameter(time,r_h,temp):
     print(d)
     return;
 
-def x_position(v_x,v_t):
+#def x_init(n):
+    #if n == 0 
+    #x_0 = 0
+    #else x_0 = x_0 + v_x*t
+    #return x_0
+
+def x_position(x_0,v_x,time):
     ''' This function estimates the horizontal distance the droplet has travelled at a certain terminal velocity and
     horizontal velocity.  
 
@@ -74,10 +79,22 @@ def x_position(v_x,v_t):
     Returns: 
         x_d (float): returns the horizontal distance of the drop in meters.  
     '''	
+    x_pos = x_0 + v_t*time
+    #if x_0 == 0:
+   	    #return 0
+   	#return x_0 + x_position(x_0 + v_x*time)
+   	#print(x_position(x_0,v_x,time))
+
+    #for i in range(-0.995,time,0.005)
+        #if x_0 == 0:
+            #x_pos = v_x*t
+   	    #else x_pos = x_0 + v_x*t
+        x_pos = x_init(n-1) + v_x*time
+    	distance = sum(x_pos)
+        print(distance)
+
 
 if __name__ == '__main__':
     #terminal_velocity(0.00005,1)
     #droplet_diameter(0.04,60,230)
-
-
-
+    x_position(0,1,0.01)
