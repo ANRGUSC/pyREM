@@ -31,9 +31,9 @@ def terminal_velocity(d,v_x):
 
     reynolds_p = RHO_A*v_x*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
-    v_x = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
-    #print(v_x)
-    return v_x
+    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
+    #print(v_t)
+    return v_t
 
 
 def droplet_diameter(time,r_h,temp):
