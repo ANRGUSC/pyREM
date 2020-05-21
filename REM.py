@@ -63,7 +63,7 @@ def droplet_diameter(time,r_h,temp):
     #print(d)
     return d
 
-def x_position(x_0,v_x,time):
+def x_position(x_0,z_0,v_x,v_t,time):
     ''' This function estimates the horizontal distance the droplet has travelled at a certain terminal velocity and
     horizontal velocity.  
 
@@ -76,14 +76,13 @@ def x_position(x_0,v_x,time):
     Returns: 
         x_d (float): returns the horizontal distance of the drop in meters.  
     '''	
-    x_pos = x_0 + v_x*time
-    #print(x_pos)
-    return x_pos
+    time_to_hit_ground = z_0 / v_t
+    return x_0 + v_x*min(time, time_to_hit_ground)
 
-def concentation(x_away,time):
+def concentation(x_away,v_t,time):
     sigma = A*(x_away**B)
-    x_d = 0 #x_position(v_x,time) #assuming source is at position 0
-    #z_d = #how do I calculate this? Projectile motion? 
+    x_d = 0  #assuming source is at position 0
+    z_d = v_t*time - 0.5*G*time**2
     conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2)
     #print(conc_of_puff)
     return conc_of_puff
@@ -96,7 +95,8 @@ def exposure_per_breath(time):
     #print(exposure)
     return exposure
 
-def total_exposure(num_breaths):
+def total_exposure(num_breaths,time):
+	exposure = exposure_per_breath(time) #exposure per breath
     total_dosage = exposure*num_breaths
     print(total_dosage)
     return;
@@ -106,7 +106,4 @@ if __name__ == '__main__':
     #droplet_diameter(0.04,60,230)
     #x_position(0,1,0.005)
     exposure_per_breath(5) #avearge breath is taken every 5s
-    total_exposure(2)
-
-
-
+    total_exposure(2,5)
