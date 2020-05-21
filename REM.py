@@ -1,6 +1,6 @@
 import time
 import math
-import sympy as sp
+from scipy.integrate import quad
 
 
 RHO_A = 1.21 #density of air in kg/m^3
@@ -32,8 +32,8 @@ def terminal_velocity(d,v_x):
     reynolds_p = RHO_A*v_x*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
     v_x = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
-    print(v_x)
-    return;
+    #print(v_x)
+    return v_x
 
 
 def droplet_diameter(time,r_h,temp):
@@ -60,14 +60,8 @@ def droplet_diameter(time,r_h,temp):
     d_min = 0.44*D_0
     d = max(D_0*math.sqrt(1-beta*time), d_min)
 
-    print(d)
-    return;
-
-#def x_init(n):
-    #if n == 0 
-    #x_0 = 0
-    #else x_0 = x_0 + v_x*t
-    #return x_0
+    #print(d)
+    return d
 
 def x_position(x_0,v_x,time):
     ''' This function estimates the horizontal distance the droplet has travelled at a certain terminal velocity and
@@ -83,25 +77,36 @@ def x_position(x_0,v_x,time):
         x_d (float): returns the horizontal distance of the drop in meters.  
     '''	
     x_pos = x_0 + v_x*time
-    print(x_pos)
-    #return x_pos
-    return;
+    #print(x_pos)
+    return x_pos
 
 def concentation(x_away,time):
-	sigma = A*(x_away**B)
-	x_d = x_position(v_x,time) #not sure
-	#z_d = #how do I calculate this? Projectile motion? 
-	conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2)
+    sigma = A*(x_away**B)
+    x_d = 0 #x_position(v_x,time) #assuming source is at position 0
+    #z_d = #how do I calculate this? Projectile motion? 
+    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2)
+    #print(conc_of_puff)
+    return conc_of_puff
 
-def exposure_per_breath(con,time): #need to integrate above function also depends on respiratory rate
+def integrand(x_away,time):
+	return (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*(x_away**2)+z_d**2)
 
-#def total_exposure(concentation,num_breaths):
-    total_dosage = exposure_per_breath(x,t)*num_breaths
+def exposure_per_breath(time): 
+    exposure, err = quad(integrand, 0, time)
+    #print(exposure)
+    return exposure
+
+def total_exposure(num_breaths):
+    total_dosage = exposure*num_breaths
     print(total_dosage)
     return;
 
 if __name__ == '__main__':
     #terminal_velocity(0.00005,1)
     #droplet_diameter(0.04,60,230)
-    x_position(0,1,0.005)
+    #x_position(0,1,0.005)
+    exposure_per_breath(5) #avearge breath is taken every 5s
+    total_exposure(2)
+
+
 
