@@ -11,7 +11,7 @@ RV = 462.52 #J/kgK specific gas constant for water
 D_0 = 1.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
-#NUMBER_OF_DROPLETS =  #number of droplets emitted (q)
+NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
 
 def terminal_velocity(d,v_x):
     ''' This function estimates the terminal velocity (units um/s ?) of a respitory droplet as a function of
@@ -83,12 +83,12 @@ def concentation(x_away,v_t,time):
     sigma = A*(x_away**B)
     x_d = 0  #assuming source is at position 0
     z_d = v_t*time - 0.5*G*time**2
-    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2)
+    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2))
     #print(conc_of_puff)
     return conc_of_puff
 
 def integrand(x_away,time):
-	return (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)**((-1/2*sigma**2)*(x_away**2)+z_d**2)
+    return (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((x_away)**2)+z_d**2))
 
 def exposure_per_breath(time): 
     exposure, err = quad(integrand, 0, time)
@@ -96,7 +96,7 @@ def exposure_per_breath(time):
     return exposure
 
 def total_exposure(num_breaths,time):
-	exposure = exposure_per_breath(time) #exposure per breath
+    exposure = exposure_per_breath(time) #exposure per breath
     total_dosage = exposure*num_breaths
     print(total_dosage)
     return;
