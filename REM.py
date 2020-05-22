@@ -1,7 +1,6 @@
 import time
 import math
 import scipy.integrate as integrate
-#import quad
 
 
 RHO_A = 1.21 #density of air in kg/m^3
@@ -98,15 +97,15 @@ def concentration(time):
     sigma = A*(X_AWAY**B)
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
-    #conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
+    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
     #print(conc_of_puff)
-    integrand = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
-    exposure = integrate.quad(integrand, 0, time)
-    print(exposure)
-    return
-    #return conc_of_puff
-
-#def integrand(time): 
+    #integrand = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
+    #exposure = integrate.quad(integrand, 0, time)
+    #print(exposure)
+    #return
+    return conc_of_puff
+'''
+def integrand(time): 
     #concentration_function = concentration(time)
     #return concentration_function
     #return concentration(time)
@@ -117,14 +116,16 @@ def exposure_per_breath(time):
     print(exposure)
     return
     #return exposure
-
+'''
 def total_exposure(time):
-    exposure = exposure_per_breath(time) #exposure per breath
+    #exposure = exposure_per_breath(time) #exposure per breath
+    exposure = concentration(time)
     total_dosage = exposure*RESPIRATORY_RATE*time
     print(total_dosage)
-    return;
+    return
  
 
 if __name__ == '__main__':
-    concentration(5)
+    #concentration(0.01)
     #exposure_per_breath(0.05)
+    total_exposure(0.1)
