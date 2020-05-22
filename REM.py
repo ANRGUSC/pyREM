@@ -1,6 +1,7 @@
 import time
 import math
-from scipy.integrate import quad
+import scipy.integrate as integrate
+#import quad
 
 
 RHO_A = 1.21 #density of air in kg/m^3
@@ -12,8 +13,15 @@ D_0 = 1.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
+X_0 = 0 #initial X position
+Z_0 = 2 #Initial vertical position
+RESPIRATORY_RATE = 0.25 #breaths/second from avg of 15 bpm
+RELATIVE_HUMMIDITY = 60 #relative hummidity
+TEMPERATURE = 293.15 # ambient temperature in Kelvin
+V_X = 1 #horizontal velocity 1m/s
+X_AWAY = 4 #a distance X meters away from source 
 
-def terminal_velocity(d,v_x):
+def terminal_velocity(d):
     ''' This function estimates the terminal velocity (units um/s ?) of a respitory droplet as a function of
     the droplet's diamter "d" and horizontal velocity "v_x"
 
@@ -29,14 +37,13 @@ def terminal_velocity(d,v_x):
 
     '''
 
-    reynolds_p = RHO_A*v_x*d/VISCOSITY #reynolds number calculation
+    reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
-    #print(v_t)
     return v_t
 
 
-def droplet_diameter(time,r_h,temp):
+def droplet_diameter(time): 
     ''' This function estimates the droplet's diameter in meters, as a function of time (s), the relative hummidity (RH),
     and the temperature, T in Kelvin.
 
@@ -52,18 +59,17 @@ def droplet_diameter(time,r_h,temp):
                 evaporated after t seconds. 
 
     '''
-    molec_diff = (2.16*10**-5)*(temp/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21**(((19.843-temp)/234.5)*((temp-273.15)/(temp-16.01)))
-    p_infin = p_sat*r_h/100
-    beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*temp) #evaporation rate
+    molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
+    p_sat = 611.21**(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_infin = p_sat*RELATIVE_HUMMIDITY/100
+    beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*TEMPERATURE) #evaporation rate
 
     d_min = 0.44*D_0
     d = max(D_0*math.sqrt(1-beta*time), d_min)
 
-    #print(d)
     return d
 
-def x_position(x_0,z_0,v_x,v_t,time):
+def position(time): # function that returns x and z position as tuple
     ''' This function estimates the horizontal distance the droplet has travelled at a certain terminal velocity and
     horizontal velocity.  
 
@@ -76,34 +82,49 @@ def x_position(x_0,z_0,v_x,v_t,time):
     Returns: 
         x_d (float): returns the horizontal distance of the drop in meters.  
     '''	
-    time_to_hit_ground = z_0 / v_t
-    return x_0 + v_x*min(time, time_to_hit_ground)
+    d = droplet_diameter(time)
+    v_t = terminal_velocity(d)
+    time_to_hit_ground = Z_0/v_t
+    x_d = X_0 + V_X*min(time, time_to_hit_ground)
+    z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
 
-def concentation(x_away,v_t,time):
-    sigma = A*(x_away**B)
-    x_d = 0  #assuming source is at position 0
-    z_d = v_t*time - 0.5*G*time**2
-    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2))
+    distance_tuple = (x_d,z_d)
+    #print(distance_tuple)
+    return distance_tuple
+
+
+def concentration(time): 
+    distance_tuple = position(time)
+    sigma = A*(X_AWAY**B)
+    x_d = distance_tuple[0]
+    z_d = distance_tuple[1]
+    #conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
     #print(conc_of_puff)
-    return conc_of_puff
+    integrand = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
+    exposure = integrate.quad(integrand, 0, time)
+    print(exposure)
+    return
+    #return conc_of_puff
 
-def integrand(x_away,time):
-    return (NUMBER_OF_DROPLETS/(math.sqrt(2*pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((x_away)**2)+z_d**2))
+#def integrand(time): 
+    #concentration_function = concentration(time)
+    #return concentration_function
+    #return concentration(time)
 
 def exposure_per_breath(time): 
-    exposure, err = quad(integrand, 0, time)
-    #print(exposure)
-    return exposure
+    integrand = concentration(time)
+    exposure = scipy.integrate.quad(integrand, 0, time)
+    print(exposure)
+    return
+    #return exposure
 
-def total_exposure(num_breaths,time):
+def total_exposure(time):
     exposure = exposure_per_breath(time) #exposure per breath
-    total_dosage = exposure*num_breaths
+    total_dosage = exposure*RESPIRATORY_RATE*time
     print(total_dosage)
     return;
+ 
 
 if __name__ == '__main__':
-    #terminal_velocity(0.00005,1)
-    #droplet_diameter(0.04,60,230)
-    #x_position(0,1,0.005)
-    exposure_per_breath(5) #avearge breath is taken every 5s
-    total_exposure(2,5)
+    concentration(5)
+    #exposure_per_breath(0.05)
