@@ -111,7 +111,7 @@ def total_exposure(time):
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
     print(total_dosage)
-    return
+    return total_dosage
 
 def exposure_with_mask(time):
     total_dosage = total_exposure(time)
@@ -124,14 +124,15 @@ def exposure_with_mask(time):
 def exposure_over_time(time):
     exposure_array = [] #create empty array for exposure values
     time_array = []
-    for i in range(0,time): #only up to 'time' though ? is that ok/ how to fix?
-        exposure = [total_exposure(i)]
+    for i in range(0, time): #only up to 'time' though ? is that ok/ how to fix?
+        exposure = total_exposure(i)
         exposure_array.append(exposure)
-        time_array += [i]
-    #plt.plot(time_array,exposure)
-    #plt.xlabel('time')
-    #plt.ylabel('total exposure')
-    #plt.title('exposure vs time graph')
+        time_array.append(i)
+    plt.plot(time_array,exposure_array)
+    plt.xlabel('Time')
+    plt.ylabel('Total Exposure')
+    plt.title('Exposure vs Time Graph')
+    plt.show()
     print(exposure_array)
     return
 
