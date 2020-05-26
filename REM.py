@@ -1,6 +1,7 @@
 import time
 import math
 import scipy.integrate as integrate
+import matplotlib.pyplot as plt
 
 
 RHO_A = 1.21 #density of air in kg/m^3
@@ -64,7 +65,7 @@ def droplet_diameter(time):
     beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*TEMPERATURE) #evaporation rate
 
     d_min = 0.44*D_0
-    d = max(D_0*math.sqrt(1-beta*time), d_min)
+    d = max(D_0*math.sqrt(max(1-beta*time,0)), d_min)
 
     return d
 
@@ -112,7 +113,14 @@ def total_exposure(time):
     print(total_dosage)
     return
 
+def exposure_with_mask(time)
+    total_dosage = total_exposure(time)
+    dosage_with_mask = 0.6*total_dosage
+    print(dosage_with_mask)
+    return
+
 if __name__ == '__main__':
     #concentration(0.01)
     #exposure_per_breath(0.05)
-    total_exposure(0.2)
+    total_exposure(5)
+    exposure_with_mask(5)
