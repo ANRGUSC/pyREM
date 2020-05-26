@@ -124,16 +124,14 @@ def exposure_with_mask(time):
 def exposure_over_time(time):
     exposure_array = [] #create empty array for exposure values
     time_array = []
-    for i in range(0,time): #only up to 'time' though ? is that ok/ how to fix? could increment
-    	exposure = total_exposure(i)
-    	#exposure_array.append(exposure)
-    	time_array += [i]
-#plt.plot(time_array,exposure)
-#plt.xlabel('time')
-#plt.ylabel('total exposure')
-#plt.title('exposure vs time graph')
-#plt.show()
-    #print(time_array)
+    for i in range(0,time): #only up to 'time' though ? is that ok/ how to fix?
+        exposure = [total_exposure(i)]
+        exposure_array.append(exposure)
+        time_array += [i]
+    #plt.plot(time_array,exposure)
+    #plt.xlabel('time')
+    #plt.ylabel('total exposure')
+    #plt.title('exposure vs time graph')
     print(exposure_array)
     return
 
@@ -143,3 +141,4 @@ if __name__ == '__main__':
     #total_exposure(5)
     #exposure_with_mask(5)
     exposure_over_time(5)
+
