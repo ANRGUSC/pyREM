@@ -113,14 +113,33 @@ def total_exposure(time):
     print(total_dosage)
     return
 
-def exposure_with_mask(time)
+def exposure_with_mask(time):
     total_dosage = total_exposure(time)
     dosage_with_mask = 0.6*total_dosage
     print(dosage_with_mask)
     return
 
+#def exposure_over_distance(time)
+
+def exposure_over_time(time):
+    exposure_array = [] #create empty array for exposure values
+    time_array = []
+    for i in range(0,time): #only up to 'time' though ? is that ok/ how to fix? could increment
+    	exposure = total_exposure(i)
+    	#exposure_array.append(exposure)
+    	time_array += [i]
+#plt.plot(time_array,exposure)
+#plt.xlabel('time')
+#plt.ylabel('total exposure')
+#plt.title('exposure vs time graph')
+#plt.show()
+    #print(time_array)
+    print(exposure_array)
+    return
+
+
+
 if __name__ == '__main__':
-    #concentration(0.01)
-    #exposure_per_breath(0.05)
-    total_exposure(5)
-    exposure_with_mask(5)
+    #total_exposure(5)
+    #exposure_with_mask(5)
+    exposure_over_time(5)
