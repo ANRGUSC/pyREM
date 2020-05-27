@@ -109,7 +109,7 @@ def total_exposure(time,x_away):
     exposure_tuple = exposure_per_breath(time,x_away)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    print(total_dosage)
+    #print(total_dosage)
     return
 
 def exposure_over_distance(time,x_away):
@@ -118,8 +118,10 @@ def exposure_over_distance(time,x_away):
     for i in range(0,time):
         droplet_size = droplet_diameter(time)
         diameter_array.append(droplet_size)
+        #exposure = total_exposure(i,x_away)
+        #exposure_array.append(exposure)
         for j in range(0,x_away):
-            exposure = total_exposure(i,j)
+            exposure = total_exposure(time,j)
             exposure_array.append(exposure)
     plt.plot(diameter_array,exposure_array)
     plt.xlabel('Droplet Size')
@@ -133,7 +135,3 @@ if __name__ == '__main__':
     #exposure_per_breath(5,4)
     #total_exposure(5,4)
     exposure_over_distance(5,4)
-
-
-
-
