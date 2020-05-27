@@ -3,6 +3,7 @@ import math
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 
+#add default values
 
 RHO_A = 1.21 #density of air in kg/m^3
 RHO_D = 1000 #density of droplet in kg/m^3
@@ -19,7 +20,7 @@ RESPIRATORY_RATE = 0.25 #breaths/second from avg of 15 bpm
 RELATIVE_HUMMIDITY = 60 #relative hummidity
 TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
-#X_AWAY = 4 #a distance X meters away from source 
+X_AWAY = 4 #a distance X meters away from source 
 
 def terminal_velocity(d):
     ''' This function estimates the terminal velocity (units um/s ?) of a respitory droplet as a function of
@@ -92,7 +93,7 @@ def position(time): # function that returns x and z position as tuple
     #print(distance_tuple)
     return distance_tuple
 
-def concentration(time,x_away): 
+def concentration(time,x_away=X_AWAY): 
     distance_tuple = position(time)
     sigma = A*(x_away**B)
     x_d = distance_tuple[0]
@@ -100,19 +101,19 @@ def concentration(time,x_away):
     conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2))
     return conc_of_puff
 
-def exposure_per_breath(time,x_away): 
+def exposure_per_breath(time,x_away=X_AWAY): 
     exposure = integrate.quad(concentration, 0, time, args=(x_away,)) #keep x_away constant while integrating
     #print(exposure)
     return exposure
 
-def total_exposure(time,x_away):
+def total_exposure(time,x_away=X_AWAY):
     exposure_tuple = exposure_per_breath(time,x_away)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
     return
 
-def exposure_over_distance(time,x_away):
+def exposure_over_distance(time,x_away=X_AWAY):
     exposure_array = []
     diameter_array = []
     for i in range(0,time):
@@ -133,5 +134,5 @@ def exposure_over_distance(time,x_away):
 
 if __name__ == '__main__':
     #exposure_per_breath(5,4)
-    #total_exposure(5,4)
-    exposure_over_distance(5,4)
+    total_exposure(5)
+    #exposure_over_distance(5,4)
