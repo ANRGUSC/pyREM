@@ -3,8 +3,6 @@ import math
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 
-#add default values
-
 RHO_A = 1.21 #density of air in kg/m^3
 RHO_D = 1000 #density of droplet in kg/m^3
 G = 9.81 #gravitational acceleration in m/s^2
@@ -110,8 +108,8 @@ def total_exposure(time,x_away=X_AWAY):
     exposure_tuple = exposure_per_breath(time,x_away)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    print(total_dosage)
-    return
+    #print(total_dosage)
+    return total_exposure
 
 def exposure_over_distance(time,x_away=X_AWAY):
     exposure_array = []
@@ -119,20 +117,24 @@ def exposure_over_distance(time,x_away=X_AWAY):
     for i in range(0,time):
         droplet_size = droplet_diameter(time)
         diameter_array.append(droplet_size)
-        #exposure = total_exposure(i,x_away)
-        #exposure_array.append(exposure)
-        for j in range(0,x_away):
-            exposure = total_exposure(time,j)
-            exposure_array.append(exposure)
+        exposure = total_exposure(i,x_away)
+        exposure_array.append(exposure)
+        #for j in range(0,x_away):
+            #exposure = total_exposure(time,j)
+            #exposure_array.append(exposure)
+    print(exposure_array)
     plt.plot(diameter_array,exposure_array)
     plt.xlabel('Droplet Size')
     plt.ylabel('Concentration of Droplets')
-    plt.title('Concentartion vs Droplet Size Graph')
+    plt.title('Concentration vs Droplet Size Graph')
     plt.show()
     return
     
+#multiple plots example
+#plt.plot(diameter_array,exposure_array1,
+         #diameter_array,exposure_array2)
 
 if __name__ == '__main__':
     #exposure_per_breath(5,4)
-    total_exposure(5)
-    #exposure_over_distance(5,4)
+    #total_exposure(5)
+    exposure_over_distance(50,4)
