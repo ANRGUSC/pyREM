@@ -88,7 +88,6 @@ def position(time): # function that returns x and z position as tuple
     z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
 
     distance_tuple = (x_d,z_d)
-    #print(distance_tuple)
     return distance_tuple
 
 def concentration(time,x_away=X_AWAY): 
@@ -104,37 +103,30 @@ def exposure_per_breath(time,x_away=X_AWAY):
     #print(exposure)
     return exposure
 
-def total_exposure(time,x_away=X_AWAY):
+def total_exposure(time=5,x_away=X_AWAY):
     exposure_tuple = exposure_per_breath(time,x_away)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
     #print(total_dosage)
-    return total_exposure
-
-def exposure_over_distance(time,x_away=X_AWAY):
-    exposure_array = []
-    diameter_array = []
-    for i in range(0,time):
-        droplet_size = droplet_diameter(time)
-        diameter_array.append(droplet_size)
-        exposure = total_exposure(i,x_away)
-        exposure_array.append(exposure)
-        #for j in range(0,x_away):
-            #exposure = total_exposure(time,j)
-            #exposure_array.append(exposure)
-    print(exposure_array)
-    plt.plot(diameter_array,exposure_array)
-    plt.xlabel('Droplet Size')
-    plt.ylabel('Concentration of Droplets')
-    plt.title('Concentration vs Droplet Size Graph')
-    plt.show()
-    return
+    return total_dosage
     
-#multiple plots example
-#plt.plot(diameter_array,exposure_array1,
-         #diameter_array,exposure_array2)
+
 
 if __name__ == '__main__':
     #exposure_per_breath(5,4)
     #total_exposure(5)
-    exposure_over_distance(50,4)
+    #exposure_over_distance(50,4)
+    exposure_array = []
+    for i in range(0,11):
+        exposure = total_exposure(i)
+        exposure_array.append(exposure)
+    #print(exposure_array)
+    droplet_size_array = [0,10,20,30,40,50,60,70,80,90,100]
+    plt.plot(droplet_size_array,exposure_array)
+    plt.xlabel('Droplet Size')
+    plt.ylabel('Concentration of Droplets')
+    plt.title('Concentration vs Droplet Size Graph')
+    plt.show()
+    #multiple plots example
+    #plt.plot(diameter_array,exposure_array1,
+           #diameter_array,exposure_array2)
