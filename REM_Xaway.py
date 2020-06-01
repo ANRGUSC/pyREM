@@ -113,20 +113,35 @@ def total_exposure(time=5,x_away=X_AWAY):
 
 
 if __name__ == '__main__':
-    #exposure_per_breath(5,4)
-    #total_exposure(5)
     #exposure_over_distance(50,4)
-    exposure_array = []
-    for i in range(0,11):
-        exposure = total_exposure(i)
-        exposure_array.append(exposure)
-    #print(exposure_array)
-    droplet_size_array = [0,10,20,30,40,50,60,70,80,90,100]
-    plt.plot(droplet_size_array,exposure_array)
+    droplet_size_array = []
+    exposure_array1 = []
+    exposure_array2 = []
+    exposure_array3 = []
+    exposure_array4 = []
+    for i in range(0,100):
+        droplet_size_array.append(i)
+        exposure_1 = total_exposure(i,2)
+        exposure_array1.append(exposure_1)
+
+        exposure_2 = total_exposure(i,1)
+        exposure_array2.append(exposure_2)
+
+        exposure_3 = total_exposure(i,0.5)
+        exposure_array3.append(exposure_3)
+
+        exposure_4 = total_exposure(i,0.25)
+        exposure_array4.append(exposure_4)
+    #for i in range(0,11): #creating an array with different x_away values in for loop
+        #exposure = total_exposure(i)
+        #exposure_array.append(exposure)
+    #droplet_size_array = [0,10,20,30,40,50,60,70,80,90,100]
+
+    plt.plot(droplet_size_array,exposure_array1)
+    plt.plot(droplet_size_array,exposure_array2)
+    plt.plot(droplet_size_array,exposure_array3)
+    plt.plot(droplet_size_array,exposure_array4)
     plt.xlabel('Droplet Size')
     plt.ylabel('Concentration of Droplets')
     plt.title('Concentration vs Droplet Size Graph')
     plt.show()
-    #multiple plots example
-    #plt.plot(diameter_array,exposure_array1,
-           #diameter_array,exposure_array2)
