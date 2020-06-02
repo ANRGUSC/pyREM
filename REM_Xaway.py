@@ -114,34 +114,25 @@ def total_exposure(time=5,x_away=X_AWAY):
 
 if __name__ == '__main__':
     #exposure_over_distance(50,4)
+    exposure_array = []
     droplet_size_array = []
-    exposure_array1 = []
-    exposure_array2 = []
-    exposure_array3 = []
-    exposure_array4 = []
-    for i in range(0,100):
-        droplet_size_array.append(i)
-        exposure_1 = total_exposure(i,2)
-        exposure_array1.append(exposure_1)
-
-        exposure_2 = total_exposure(i,1)
-        exposure_array2.append(exposure_2)
-
-        exposure_3 = total_exposure(i,0.5)
-        exposure_array3.append(exposure_3)
-
-        exposure_4 = total_exposure(i,0.25)
-        exposure_array4.append(exposure_4)
-    #for i in range(0,11): #creating an array with different x_away values in for loop
-        #exposure = total_exposure(i)
-        #exposure_array.append(exposure)
-    #droplet_size_array = [0,10,20,30,40,50,60,70,80,90,100]
-
-    plt.plot(droplet_size_array,exposure_array1)
-    plt.plot(droplet_size_array,exposure_array2)
-    plt.plot(droplet_size_array,exposure_array3)
-    plt.plot(droplet_size_array,exposure_array4)
+    for i in range(0,11):
+        droplet_size = droplet_diameter(i)
+        droplet_size_array.append(droplet_size)
+    x_away = [0.25,0.5,1,2,3]
+    for x in x_away[0:4]:
+        for i in range(0,11):
+            exposure = total_exposure(i,x)
+            exposure_array.append(exposure)
+    plt.plot(droplet_size_array,exposure_array[0:11])
+    plt.plot(droplet_size_array,exposure_array[11:22])
+    plt.plot(droplet_size_array,exposure_array[22:33])
+    plt.plot(droplet_size_array,exposure_array[33:44])
     plt.xlabel('Droplet Size')
     plt.ylabel('Concentration of Droplets')
     plt.title('Concentration vs Droplet Size Graph')
+    #plt.figure()
+    print(exposure_array)
     plt.show()
+
+
