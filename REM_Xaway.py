@@ -132,7 +132,6 @@ if __name__ == '__main__':
     plt.ylabel('Concentration of Droplets')
     plt.title('Concentration vs Droplet Size Graph')
     #plt.figure()
-    print(exposure_array)
     plt.show()
 
 
