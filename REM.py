@@ -20,7 +20,7 @@ TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
 X_AWAY = 4 #a distance X meters away from source 
 
-M95_MASK = 0.001 #filters out 99.9% of aerosals 
+N95_MASK = 0.001 #filters out 99.9% of aerosals 
 CLOTH_MASK = 0.9 # filters out only 10% of aerosals
 LEVEL_1_MASK = 0.05 #filters 95% aerosals
 
@@ -149,7 +149,7 @@ def exposure_with_mask(time):
         dosage_with_mask (float): a float value representing the total dosage a person is exposed to after several breaths are
         taken from an infected source while wearing specified mask. 
     '''	
-    mask_type = M95_MASK
+    mask_type = N95_MASK
     total_dosage = total_exposure(time)
     dosage_with_mask = mask_type*total_dosage
     #print(dosage_with_mask)
