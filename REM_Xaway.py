@@ -1,12 +1,15 @@
 import math
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
+import numpy as np
 
 RHO_A = 1.21 #density of air in kg/m^3
 RHO_D = 1000 #density of droplet in kg/m^3
+RHO = RHO_A
+RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
-RV = 462.52 #J/kgK specific gas constant for water
+RV = 461.52 #J/kgK specific gas constant for water
 D_0 = 1.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
@@ -23,7 +26,7 @@ def terminal_velocity(d):
     ''' This function estimates the terminal velocity in m/s of a respitory droplet as a function of
     the droplet's diamter "d" in micro meters. The terminal velocity also depends on defined constants and variables,
     gravity, drad coefficient, Reynolds number, and the density of the droplet and air.
-
+terminal_velocity
     Parameters:
         d (float): A float representing the the diamter of the droplet which will be used to calculate the 
                 Reynolds number and then used to find the drag coefficient "Cd"
@@ -35,11 +38,11 @@ def terminal_velocity(d):
     '''
     reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
-    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
+    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
     return v_t
 
 
-def droplet_diameter(time): 
+def droplet_diameter(time, initial_D):
     ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
      on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
 
@@ -51,16 +54,16 @@ def droplet_diameter(time):
                 evaporated after t seconds. 
     '''
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21**(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_sat = 611.21*math.exp((19.843-TEMPERATURE/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
-    beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*TEMPERATURE) #evaporation rate
+    beta = (8*molec_diff*(p_sat-p_infin))/((initial_D**2)*RHO_P*RV*TEMPERATURE) #evaporation rate
 
-    d_min = 0.44*D_0
-    d = max(D_0*math.sqrt(max(1-beta*time,0)), d_min)
+    d_min = 0.44*initial_D
+    d = max(initial_D*math.sqrt(max(1-beta*time,0)), d_min)
 
     return d
 
-def position(time): 
+def position(time, initial_D):
     ''' This function estimates the horizontal and vertical distance the droplet has travelled at an inputted time for a 
     certain terminal velocity, horizontal velocity, initital X_0 and Z_0 
 
@@ -71,7 +74,7 @@ def position(time):
         (x_d,z_d): a 2-tuple of float values containing the horizontal and vertical distance of the drop in meters
                    after t seconds.
     '''
-    d = droplet_diameter(time)
+    d = droplet_diameter(time, initial_D)
     v_t = terminal_velocity(d)
 
     time_to_hit_ground = Z_0/v_t
@@ -81,7 +84,7 @@ def position(time):
     distance_tuple = (x_d,z_d)
     return distance_tuple
 
-def concentration(time,x_away=X_AWAY): 
+def concentration(time,x_away, initial_D):
     ''' This function estimates the concentration of the droplets by modeling each breath as an ever expanding 
     Gaussian distribution.
 
@@ -92,14 +95,15 @@ def concentration(time,x_away=X_AWAY):
         conc_of_puff (float): a float value containing the concentration of the puff that interacts with a person X_AWAY 
         from the infected source.
     ''' 
-    distance_tuple = position(time)
-    sigma = A*(x_away**B)
+    distance_tuple = position(time, initial_D)
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
-    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((x_away-x_d)**2)+z_d**2))
+    sigma = A*(x_d**B)
+    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp((-1/(2*sigma**2))*((x_away-x_d)**2+z_d**2))
     return conc_of_puff
 
-def exposure_per_breath(time,x_away=X_AWAY): 
+
+def exposure_per_breath(time, x_away, initial_D):
     ''' This function estimates the dose of respiratory droplets that a person is exposed to by integrating the concentration 
     function above over the duration that the puff travels in the air. This function uses the python library scipy and the quad 
     function to evaluate the integral. 
@@ -110,11 +114,13 @@ def exposure_per_breath(time,x_away=X_AWAY):
     Returns: 
         exposure (2-tuple float): A 2-tuple of float value containing the concentration of the puff integrated over the inputted 
         time, and the error due to possible numerical error in the integrand from the use of quad 
-    ''' 
-    exposure = integrate.quad(concentration, 0, time, args=(x_away,)) #keep x_away constant while integrating
+    '''
+
+    exposure = integrate.quad(concentration, 0, time, args=(x_away,initial_D,)) #keep x_away constant while integrating
     return exposure
 
-def total_exposure(time=5,x_away=X_AWAY):
+
+def total_exposure(time, x_away, initial_D):
     ''' This function estimates the total dosage a person is exposed to after many Guassian puffs by multiplying the
     respiratory rate x time to find the number of times the infected person has exhaled droplets into the air by exposure_per_breath
     function. 
@@ -126,7 +132,7 @@ def total_exposure(time=5,x_away=X_AWAY):
         total_dosage (float): a float value representing the total dosage a person is exposed to after several breaths are
         taken from an infected source. 
     ''' 
-    exposure_tuple = exposure_per_breath(time,x_away)
+    exposure_tuple = exposure_per_breath(time,x_away, initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
     #print(total_dosage)
@@ -137,16 +143,18 @@ if __name__ == '__main__':
     #exposure_over_distance(50,4)
     exposure_array = []
     droplet_size_array = []
-    for i in range(0,11):
-        droplet_size = droplet_diameter(i)
-        droplet_size_array.append(droplet_size)
+    t = 3
+    initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
+    #for i in range(0,11):
+    #    droplet_size = droplet_diameter(i)
+    #    droplet_size_array.append(droplet_size)
     x_away = [0.25,0.5,1,2,3]
-    for x in x_away[0:4]:
+    for x in x_away:
         exposure_array = []
-        for i in range(0,11):
-            exposure = total_exposure(i,x)
+        for init_D in initial_D_list:
+            exposure = total_exposure(t,x,init_D)
             exposure_array.append(exposure)
-        plt.plot(droplet_size_array,exposure_array, label = "x_away = " + str(x))
+        plt.plot(initial_D_list,exposure_array, label = "x_away = " + str(x))
     plt.xlabel('Droplet Size')
     plt.ylabel('Concentration of Droplets')
     plt.title('Concentration vs Droplet Size Graph')
