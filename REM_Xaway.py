@@ -142,15 +142,13 @@ if __name__ == '__main__':
         droplet_size_array.append(droplet_size)
     x_away = [0.25,0.5,1,2,3]
     for x in x_away[0:4]:
+        exposure_array = []
         for i in range(0,11):
             exposure = total_exposure(i,x)
             exposure_array.append(exposure)
-    plt.plot(droplet_size_array,exposure_array[0:11])
-    plt.plot(droplet_size_array,exposure_array[11:22])
-    plt.plot(droplet_size_array,exposure_array[22:33])
-    plt.plot(droplet_size_array,exposure_array[33:44])
+        plt.plot(droplet_size_array,exposure_array, label = "x_away = " + str(x))
     plt.xlabel('Droplet Size')
     plt.ylabel('Concentration of Droplets')
     plt.title('Concentration vs Droplet Size Graph')
-    #plt.figure()
+    plt.legend()
     plt.show()
