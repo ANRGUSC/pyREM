@@ -23,7 +23,7 @@ TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
 X_AWAY = 4 #a distance X meters away from source 
 
-def terminal_velocity(d):
+def terminal_velocity(d,initial_D):
     ''' This function estimates the terminal velocity in m/s of a respitory droplet as a function of
     the droplet's diamter "d" in micro meters. The terminal velocity also depends on defined constants and variables,
     gravity, drad coefficient, Reynolds number, and the density of the droplet and air.
@@ -37,6 +37,9 @@ def terminal_velocity(d):
                     and neglects the Buoyant force. 
 
     '''
+    if time <= 0:
+        return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
+
     reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
@@ -155,26 +158,3 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show()
-
-'''
-    exposure_array = []
-    droplet_size_array = []
-    for i in range(0,11):
-        droplet_size = droplet_diameter(i)
-        droplet_size_array.append(droplet_size)
-    x_away = [0.25,0.5,1,2,3]
-    for x in x_away:
-        for i in range(0,11):
-            exposure = total_exposure(i,x)
-            exposure_array.append(exposure)
-    plt.plot(droplet_size_array,exposure_array[0:11])
-    plt.plot(droplet_size_array,exposure_array[11:22])
-    plt.plot(droplet_size_array,exposure_array[22:33])
-    plt.plot(droplet_size_array,exposure_array[33:44])
-    plt.xlabel('Droplet Size')
-    plt.ylabel('Concentration of Droplets')
-    plt.title('Concentration vs Droplet Size Graph')
-    #plt.figure()
-    plt.show()
-'''
-    
