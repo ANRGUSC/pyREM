@@ -109,10 +109,10 @@ def concentration(time,x_away,initial_D):
         conc_of_puff (float): a float value containing the concentration of the puff that interacts with a person X_AWAY 
         from the infected source.
     ''' 
-    distance_tuple = position(time,initial_D)
-    sigma = A*(x_away**B) #should this be x_d? not sure 
+    distance_tuple = position(time,initial_D)   
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
+    sigma = A*(x_d**B)
     conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp((-1/(2*sigma**2))*((x_away-x_d)**2+z_d**2))
     return conc_of_puff
 
