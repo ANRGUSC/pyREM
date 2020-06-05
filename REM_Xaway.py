@@ -23,7 +23,32 @@ TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
 X_AWAY = 4 #a distance X meters away from source 
 
-def terminal_velocity(d,initial_D):
+def droplet_diameter(time, initial_D): 
+    ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
+     on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
+
+    Parameters:
+        time (float): This parameter represents the time at which the diameter of the droplet will be calclulated, 
+                    since the size of the droplet evaporates over time.
+    Returns:
+        d (float): Returns d, a float value representing the diameter of the droplet after it has 
+                evaporated after t seconds. 
+    '''
+    if time <= 0:
+        return initial_D
+
+    molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
+    p_sat = 611.21*math.exp((19.843-TEMPERATURE/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_infin = p_sat*RELATIVE_HUMMIDITY/100
+    beta = (8*molec_diff*(p_sat-p_infin))/((initial_D**2)*RHO_P*RV*TEMPERATURE) #evaporation rate
+    #beta = (8*molec_diff*(p_sat-p_infin))/((droplet_diameter(time-0.005, D_0)**2)*RHO_P*RV*TEMPERATURE) #using previous droplet size
+
+    d_min = 0.44*initial_D
+    d = max(initial_D*math.sqrt(max(1-beta*time,0)), d_min)
+
+    return d
+
+def terminal_velocity(time,initial_D):
     ''' This function estimates the terminal velocity in m/s of a respitory droplet as a function of
     the droplet's diamter "d" in micro meters. The terminal velocity also depends on defined constants and variables,
     gravity, drad coefficient, Reynolds number, and the density of the droplet and air.
@@ -40,32 +65,16 @@ def terminal_velocity(d,initial_D):
     if time <= 0:
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
+    #v_temp = terminal_velocity(time-0.005, initial_D)
+    #d_before = droplet_diameter(time-0.005, initial_D)
+    #reynolds_p = RHO_A*v_temp*d_before/VISCOSITY #reynolds number should be using diameter and v_t at previous iteration
+
     reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
+    d = droplet_diameter(time,initial_D)
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
     return v_t
 
-
-def droplet_diameter(time, initial_D): 
-    ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
-     on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
-
-    Parameters:
-        time (float): This parameter represents the time at which the diameter of the droplet will be calclulated, 
-                    since the size of the droplet evaporates over time.
-    Returns:
-        d (float): Returns d, a float value representing the diameter of the droplet after it has 
-                evaporated after t seconds. 
-    '''
-    molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21*math.exp((19.843-TEMPERATURE/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
-    p_infin = p_sat*RELATIVE_HUMMIDITY/100
-    beta = (8*molec_diff*(p_sat-p_infin))/((initial_D**2)*RHO_P*RV*TEMPERATURE) #evaporation rate
-
-    d_min = 0.44*initial_D
-    d = max(initial_D*math.sqrt(max(1-beta*time,0)), d_min)
-
-    return d
 
 def position(time,initial_D): 
     ''' This function estimates the horizontal and vertical distance the droplet has travelled at an inputted time for a 
@@ -78,6 +87,7 @@ def position(time,initial_D):
         (x_d,z_d): a 2-tuple of float values containing the horizontal and vertical distance of the drop in meters
                    after t seconds.
     '''
+
     d = droplet_diameter(time,initial_D)
     v_t = terminal_velocity(d)
 
@@ -143,7 +153,7 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
 if __name__ == '__main__':
     total_exposure(50,4)
 
-    t = 3 #three iterations of time because only 3 initial_D's
+    t = 3 #three iterations of time because only 3 initial_D's ?
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
 
     x_away = [0.25,0.5,1,2,3]
