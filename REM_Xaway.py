@@ -69,9 +69,10 @@ def terminal_velocity(time,initial_D):
     #d_before = droplet_diameter(time-0.005, initial_D)
     #reynolds_p = RHO_A*v_temp*d_before/VISCOSITY #reynolds number should be using diameter and v_t at previous iteration
 
+    d = droplet_diameter(time,initial_D)
     reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
-    d = droplet_diameter(time,initial_D)
+
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
     return v_t
 
@@ -89,10 +90,17 @@ def position(time,initial_D):
     '''
     if time <= 0:
         return (X_0, Z_0)
-        
+    '''
+    position_before_x, position_before_z = position(time-0.005, initial_D)
+    v_t = terminal_velocity(time, initial_D)
+    x_d = position_before_x
+    z_d = max(position_before_z-v_t*0.005,0) #take into account droplet hitting the ground
+    if z_d > 0:
+        x_d = position_before_x + V_X*0.005
+    '''
     d = droplet_diameter(time,initial_D)
-    v_t = terminal_velocity(d)
-
+    v_t = terminal_velocity(time, initial_D)
+    
     time_to_hit_ground = Z_0/v_t
     x_d = X_0 + V_X*min(time, time_to_hit_ground)
     z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
@@ -170,3 +178,22 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show()
+
+'''
+exposure_array = []
+    droplet_size_array = []
+
+    time_list = list(np.arange(0, 0.1, 0.005))
+    print(time_list)
+    a = [position(i, D_0) for i in time_list]
+    print(a)
+
+    #sys.exit()
+
+    time_list = list(np.arange(0.001, 2, 0.1))
+    for t in time_list:
+        print("time : " + str(t))
+        exposure_array.append(total_exposure(t,2,D_0))
+    plt.plot(time_list, exposure_array)
+    plt.show()
+    '''
