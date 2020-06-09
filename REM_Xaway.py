@@ -23,6 +23,7 @@ TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
 X_AWAY = 4 #a distance X meters away from source 
 
+"""
 def droplet_diameter(time, initial_D): 
     ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
      on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
@@ -38,13 +39,30 @@ def droplet_diameter(time, initial_D):
         return initial_D
 
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21*math.exp((19.843-TEMPERATURE/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_sat = 611.21*math.exp(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
     beta = (8*molec_diff*(p_sat-p_infin))/((initial_D**2)*RHO_P*RV*TEMPERATURE) #evaporation rate
-    #beta = (8*molec_diff*(p_sat-p_infin))/((droplet_diameter(time-0.005, D_0)**2)*RHO_P*RV*TEMPERATURE) #using previous droplet size
+
 
     d_min = 0.44*initial_D
     d = max(initial_D*math.sqrt(max(1-beta*time,0)), d_min)
+
+    return d
+"""
+def diameter_polynomial(time,initial_D=D_0):
+    molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
+    p_sat = 611.21*math.exp((19.843-(TEMPERATURE/234.5))*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_infin = p_sat*RELATIVE_HUMMIDITY/100
+
+    k = ((8*molec_diff*(p_sat-p_infin)*(initial_D**2)*time)/(RHO_P*RV*TEMPERATURE))
+    m = -initial_D**2
+    p = np.poly1d([1, 0, m, 0, k])
+
+    roots = max(np.roots(p))
+    d = roots
+
+    if np.iscomplex(d) == True:
+       d = 7.00*10**-6
 
     return d
 
@@ -64,10 +82,6 @@ def terminal_velocity(time,initial_D):
     '''
     if time <= 0:
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
-
-    #v_temp = terminal_velocity(time-0.005, initial_D)
-    #d_before = droplet_diameter(time-0.005, initial_D)
-    #reynolds_p = RHO_A*v_temp*d_before/VISCOSITY #reynolds number should be using diameter and v_t at previous iteration
 
     d = droplet_diameter(time,initial_D)
     reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
@@ -90,14 +104,7 @@ def position(time,initial_D):
     '''
     if time <= 0:
         return (X_0, Z_0)
-    '''
-    position_before_x, position_before_z = position(time-0.005, initial_D)
-    v_t = terminal_velocity(time, initial_D)
-    x_d = position_before_x
-    z_d = max(position_before_z-v_t*0.005,0) #take into account droplet hitting the ground
-    if z_d > 0:
-        x_d = position_before_x + V_X*0.005
-    '''
+        
     d = droplet_diameter(time,initial_D)
     v_t = terminal_velocity(time, initial_D)
     
