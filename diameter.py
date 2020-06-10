@@ -11,9 +11,7 @@ RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
 RHO_A = 1.21 #also called RHO, density of air in kg/m^3 
 RHO_P = RHO_D
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
-#N = 10.8*VISCOSITY*((RHO_A*D_0)/VISCOSITY)**0.687 #use d  from function not D_0
-#P = 4*(D_0**2)*(RHO_D-RHO_A) #use d from function not D_0
-#M = 72*VISCOSITY
+
 
 def diameter_polynomial(time,initial_D=D_0):
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
@@ -43,9 +41,9 @@ def velocity_exponential(time,initial_D=D_0):
     m = 72*VISCOSITY
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-    print(roots.x[0])
-    return roots
+    
+    return roots.x[0]
 
 if __name__ == '__main__':
     #diameter_polynomial(0.01)
-    velocity_exponential(0.1)
+    velocity_exponential(60)
