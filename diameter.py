@@ -1,8 +1,7 @@
 import numpy as np 
 import math
 import scipy
-from scipy import optimize
-from scipy.optimize import fsolve
+from scipy.optimize import root
 
 D_0 = 1.00*10**-5 #initial diameter of droplet
 RELATIVE_HUMMIDITY = 60 #relative hummidity
@@ -33,18 +32,20 @@ def diameter_polynomial(time,initial_D=D_0):
 
     return d
 
-
-def v(x):
-	return N*x**2.687+M*x**2-P*x
  
-def velocity_polynomial(time,initial_D=D_0):
-    d = droplet_diameter(time,initial_D) #will replace this with diameter_polynomial after it is working 
+def velocity_exponential(time,initial_D=D_0):
+    if time <= 0:
+        return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
+
+    d = diameter_polynomial(time,initial_D) 
     n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
     p = 4*(d**2)*(RHO_D-RHO_A) 
     m = 72*VISCOSITY
-    #function = n*x**2.687+m*x**2-p*x
-    return 
+
+    roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    print(roots)
+    return roots
 
 if __name__ == '__main__':
-    diameter_polynomial(0.01)
-    #roots = fsolve(v,0)
+    #diameter_polynomial(0.01)
+    velocity_exponential(0.1)
