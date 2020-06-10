@@ -2,6 +2,7 @@ import math
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import root
 
 RHO_A = 1.21 #density of air in kg/m^3 
 RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
@@ -23,10 +24,10 @@ TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
 X_AWAY = 4 #a distance X meters away from source 
 
-"""
-def droplet_diameter(time, initial_D): 
+
+def diameter_polynomial(time,initial_D=D_0):
     ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
-     on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
+    on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
 
     Parameters:
         time (float): This parameter represents the time at which the diameter of the droplet will be calclulated, 
@@ -35,21 +36,6 @@ def droplet_diameter(time, initial_D):
         d (float): Returns d, a float value representing the diameter of the droplet after it has 
                 evaporated after t seconds. 
     '''
-    if time <= 0:
-        return initial_D
-
-    molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21*math.exp(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
-    p_infin = p_sat*RELATIVE_HUMMIDITY/100
-    beta = (8*molec_diff*(p_sat-p_infin))/((initial_D**2)*RHO_P*RV*TEMPERATURE) #evaporation rate
-
-
-    d_min = 0.44*initial_D
-    d = max(initial_D*math.sqrt(max(1-beta*time,0)), d_min)
-
-    return d
-"""
-def diameter_polynomial(time,initial_D=D_0):
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
     p_sat = 611.21*math.exp((19.843-(TEMPERATURE/234.5))*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
@@ -83,12 +69,14 @@ def terminal_velocity(time,initial_D):
     if time <= 0:
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
-    d = droplet_diameter(time,initial_D)
-    reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
-    drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient
+    d = diameter_polynomial(time,initial_D) 
+    n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
+    p = 4*(d**2)*(RHO_D-RHO_A) 
+    m = 72*VISCOSITY
 
-    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
-    return v_t
+    roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    
+    return roots.x[0]
 
 
 def position(time,initial_D): 
@@ -104,8 +92,8 @@ def position(time,initial_D):
     '''
     if time <= 0:
         return (X_0, Z_0)
-        
-    d = droplet_diameter(time,initial_D)
+
+    d = diameter_polynomial(time,initial_D)
     v_t = terminal_velocity(time, initial_D)
     
     time_to_hit_ground = Z_0/v_t
@@ -168,8 +156,8 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     
 
 if __name__ == '__main__':
-    total_exposure(50,4)
-
+    total_exposure(5)
+'''
     t = 3 #three iterations of time because only 3 initial_D's ?
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
 
@@ -185,7 +173,7 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show()
-
+'''
 '''
 exposure_array = []
     droplet_size_array = []
