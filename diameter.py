@@ -43,7 +43,7 @@ def velocity_exponential(time,initial_D=D_0):
     m = 72*VISCOSITY
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-    print(roots)
+    print(roots.x)
     return roots
 
 if __name__ == '__main__':
