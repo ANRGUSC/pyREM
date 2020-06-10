@@ -6,7 +6,7 @@ from scipy.optimize import root
 D_0 = 1.00*10**-5 #initial diameter of droplet
 RELATIVE_HUMMIDITY = 60 #relative hummidity
 TEMPERATURE = 293.15 # ambient temperature in Kelvin
-RV = 462.52 #J/kgK specific gas constant for water
+RV = 461.52 #J/kgK specific gas constant for water
 RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
 RHO_A = 1.21 #also called RHO, density of air in kg/m^3 
 RHO_P = RHO_D
