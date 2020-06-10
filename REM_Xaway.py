@@ -156,9 +156,8 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     
 
 if __name__ == '__main__':
-    total_exposure(5)
-'''
-    t = 3 #three iterations of time because only 3 initial_D's ?
+    #total_exposure(5)
+    t = 40 
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
 
     x_away = [0.25,0.5,1,2,3]
@@ -172,23 +171,4 @@ if __name__ == '__main__':
     plt.ylabel('Concentration of Droplets')
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
-    plt.show()
-'''
-'''
-exposure_array = []
-    droplet_size_array = []
-
-    time_list = list(np.arange(0, 0.1, 0.005))
-    print(time_list)
-    a = [position(i, D_0) for i in time_list]
-    print(a)
-
-    #sys.exit()
-
-    time_list = list(np.arange(0.001, 2, 0.1))
-    for t in time_list:
-        print("time : " + str(t))
-        exposure_array.append(total_exposure(t,2,D_0))
-    plt.plot(time_list, exposure_array)
-    plt.show()
-    '''
+    plt.show() 
