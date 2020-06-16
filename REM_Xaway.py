@@ -17,7 +17,7 @@ A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
 X_0 = 0 #initial X position
-Z_0 = 2 #Initial vertical position
+Z_0 = 0 #Initial vertical position 
 RESPIRATORY_RATE = 0.25 #breaths/second from avg of 15 bpm
 RELATIVE_HUMMIDITY = 60 #relative hummidity
 TEMPERATURE = 293.15 # ambient temperature in Kelvin
@@ -80,7 +80,7 @@ def terminal_velocity(time,initial_D):
     return 10*roots.x[0]
 
 
-def position(time,initial_D): 
+def position(time,initial_D=D_0): 
     ''' This function estimates the horizontal and vertical distance the droplet has travelled at an inputted time for a 
     certain terminal velocity, horizontal velocity, initital X_0 and Z_0 
 
@@ -97,9 +97,11 @@ def position(time,initial_D):
     d = diameter_polynomial(time,initial_D)
     v_t = terminal_velocity(time, initial_D)
     
-    time_to_hit_ground = Z_0/v_t
-    x_d = X_0 + V_X*min(time, time_to_hit_ground)
-    z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
+    #time_to_hit_ground = Z_0/v_t
+    #x_d = X_0 + V_X*min(time, time_to_hit_ground)
+    #z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
+    x_d = X_0 + V_X*time
+    z_d = Z_0-v_t*time
     distance_tuple = (x_d,z_d)
 
     return distance_tuple
@@ -159,8 +161,24 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     
 
 if __name__ == '__main__':
-    total_exposure(5)
+    #total_exposure(5)
+    #position(0.04)
 
+    time = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    x_d_array = []
+    z_d_array = []
+    for t in time:
+        distance_tuple = position(t,D_0)
+        x_d = distance_tuple[0]
+        z_d = distance_tuple[1]
+        x_d_array.append(x_d)
+        z_d_array.append(z_d)
+    plt.plot(x_d_array,z_d_array)
+    plt.xlabel('x_d')
+    plt.ylabel('z_d')
+    plt.show()
+
+'''
     t = 100 
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
 
@@ -176,3 +194,4 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
+'''
