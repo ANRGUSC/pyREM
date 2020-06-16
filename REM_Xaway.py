@@ -25,7 +25,7 @@ V_X = 1 #horizontal velocity 1m/s
 X_AWAY = 4 #a distance X meters away from source 
 
 
-def diameter_polynomial(time,initial_D=D_0):
+def diameter_polynomial(time,initial_D):
     ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
     on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
 
@@ -48,7 +48,8 @@ def diameter_polynomial(time,initial_D=D_0):
     d = roots
 
     if np.iscomplex(d) == True:
-       d = 7.00*10**-6
+       d = 0.44*initial_D
+       #d = 7.00*10**-6
 
     return d
 
@@ -76,7 +77,7 @@ def terminal_velocity(time,initial_D):
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
     
-    return roots.x[0]
+    return 10*roots.x[0]
 
 
 def position(time,initial_D): 
@@ -99,8 +100,8 @@ def position(time,initial_D):
     time_to_hit_ground = Z_0/v_t
     x_d = X_0 + V_X*min(time, time_to_hit_ground)
     z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
-
     distance_tuple = (x_d,z_d)
+
     return distance_tuple
 
 def concentration(time,x_away,initial_D): 
@@ -115,10 +116,11 @@ def concentration(time,x_away,initial_D):
         from the infected source.
     ''' 
     distance_tuple = position(time,initial_D)
-    sigma = A*(x_away**B) #should this be x_d? not sure 
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
-    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp((-1/(2*sigma**2))*((x_away-x_d)**2+z_d**2))
+    sigma = A*(x_d**B) 
+    conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((x_away-x_d)**2+z_d**2))
+    
     return conc_of_puff
 
 def exposure_per_breath(time,x_away,initial_D): 
@@ -134,6 +136,7 @@ def exposure_per_breath(time,x_away,initial_D):
         time, and the error due to possible numerical error in the integrand from the use of quad 
     ''' 
     exposure = integrate.quad(concentration, 0, time, args=(x_away,initial_D,)) #keep x_away constant while integrating
+    
     return exposure
 
 def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
@@ -156,8 +159,9 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     
 
 if __name__ == '__main__':
-    #total_exposure(5)
-    t = 40 
+    total_exposure(5)
+
+    t = 100 
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
 
     x_away = [0.25,0.5,1,2,3]
