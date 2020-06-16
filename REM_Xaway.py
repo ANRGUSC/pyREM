@@ -123,7 +123,6 @@ def concentration(time,x_away,initial_D):
     sigma = A*(x_d**B) 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((x_away-x_d)**2+z_d**2))
 
-    print(conc_of_puff)
     return conc_of_puff
 
 def exposure_per_breath(time,x_away,initial_D): 
@@ -139,7 +138,7 @@ def exposure_per_breath(time,x_away,initial_D):
         time, and the error due to possible numerical error in the integrand from the use of quad 
     ''' 
     exposure = integrate.quad(concentration, 0, time, args=(x_away,initial_D,)) #keep x_away constant while integrating
-    
+
     return exposure
 
 def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
@@ -157,28 +156,33 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,x_away,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
+
     return total_dosage
     
 
 if __name__ == '__main__':
-    #total_exposure(5)
+    #total_exposure(6)
 
-    time = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-    conc_array = []
     x_d_array = []
     z_d_array = []
 
-    for t in time:
+    for t in range(0,10):
         distance_tuple = position(t,D_0)
         x_d = distance_tuple[0]
         z_d = distance_tuple[1]
         x_d_array.append(x_d)
         z_d_array.append(z_d)
         plt.plot(x_d_array,z_d_array,'bo-')
-        label = "0.75"
-        plt.annotate(label, # this is the text
-                 (0,0), # this is the point to label
+        label1 = "1.792506"
+        label2 = "5.17359135"
+        plt.annotate(label1, # this is the text
+                 (4,-0.0023738505199829823), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center       
+        plt.annotate(label2, # this is the text
+                 (5,-0.002967313149978728), # this is the point to label
                  textcoords="offset points", # how to position the text
                  xytext=(0,10), # distance from text to points (x,y)
                  ha='center') # horizontal alignment can be left, right or center
@@ -187,10 +191,10 @@ if __name__ == '__main__':
     plt.xlabel('x_d')
     plt.ylabel('z_d')
     plt.show()
+
 '''
     t = 100 
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
-
     x_away = [0.25,0.5,1,2,3]
     for x in x_away:
         exposure_array = []
