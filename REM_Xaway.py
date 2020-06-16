@@ -156,13 +156,13 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,x_away,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    print(total_dosage)
+    #print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
-    #total_exposure(6)
+    #total_exposure(5)
 
     x_d_array = []
     z_d_array = []
@@ -175,7 +175,9 @@ if __name__ == '__main__':
         z_d_array.append(z_d)
         plt.plot(x_d_array,z_d_array,'bo-')
         label1 = "1.792506"
-        label2 = "5.17359135"
+        label2 = "4.31106737"
+        label3 = "5.17359135"
+        label4 = "6.03585657"
         plt.annotate(label1, # this is the text
                  (4,-0.0023738505199829823), # this is the point to label
                  textcoords="offset points", # how to position the text
@@ -183,6 +185,16 @@ if __name__ == '__main__':
                  ha='center') # horizontal alignment can be left, right or center       
         plt.annotate(label2, # this is the text
                  (5,-0.002967313149978728), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+        plt.annotate(label3, # this is the text
+                 (6,-0.00361005), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+        plt.annotate(label4, # this is the text
+                 (7,-0.00423001), # this is the point to label
                  textcoords="offset points", # how to position the text
                  xytext=(0,10), # distance from text to points (x,y)
                  ha='center') # horizontal alignment can be left, right or center
