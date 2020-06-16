@@ -1,13 +1,14 @@
 import math
 import scipy.integrate as integrate
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-RHO_A = 1.21 #density of air in kg/m^3
-RHO_D = 1000 #density of droplet in kg/m^3
+RHO_A = 1.21 #also called RHO, density of air in kg/m^3 
+RHO_D = 1000 #also called RHO_P, density of droplet in kg/m^3; same as RHO_P
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
-RV = 462.52 #J/kgK specific gas constant for water
+RV = 461.52 #J/kgK specific gas constant for water
 D_0 = 1.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
@@ -37,7 +38,7 @@ def droplet_diameter(time):
                 evaporated after t seconds. 
     '''
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21**(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_sat = 611.21*math.exp(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
     beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*TEMPERATURE) #evaporation rate
 
@@ -46,7 +47,7 @@ def droplet_diameter(time):
 
     return d
 
-def terminal_velocity(d):
+def terminal_velocity(time):
     ''' This function estimates the terminal velocity in m/s of a respitory droplet as a function of
     the droplet's diamter "d" in micro meters. The terminal velocity also depends on defined constants and variables,
     gravity, drad coefficient, Reynolds number, and the density of the droplet and air.
@@ -60,7 +61,7 @@ def terminal_velocity(d):
                     and neglects the Buoyant force. 
 
     '''
-
+    d = droplet_diameter(time)
     reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
@@ -77,6 +78,7 @@ def position(time):
         (x_d,z_d): a 2-tuple of float values containing the horizontal and vertical distance of the drop in meters
                    after t seconds.
     '''	
+
     d = droplet_diameter(time)
     v_t = terminal_velocity(d)
 
@@ -103,7 +105,7 @@ def concentration(time):
     sigma = A*(X_AWAY**B) #dispersion coefficient 
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
-    conc_of_puff = (NUMBER_OF_DROPLETS/(math.sqrt(2*math.pi*sigma))**3)*math.exp(((-1/2*sigma**2)*((X_AWAY-x_d)**2)+z_d**2))
+    conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((X_AWAY-x_d)**2+z_d**2))
     return conc_of_puff
 
 def exposure_per_breath(time): 
@@ -136,7 +138,7 @@ def total_exposure(time):
     exposure_tuple = exposure_per_breath(time)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
     return total_dosage
 
 def exposure_with_mask(time):
@@ -157,9 +159,9 @@ def exposure_with_mask(time):
 
 #example usage, for testing
 if __name__ == '__main__':
-    #total_exposure(40)
+    total_exposure(5)
     #exposure_with_mask(40)
-
+'''
     exposure_array = []
     time_array = []
     for i in range(0,40):
@@ -171,3 +173,4 @@ if __name__ == '__main__':
     plt.ylabel('Total Exposure')
     plt.title('Exposure vs Time Graph')
     plt.show()
+'''
