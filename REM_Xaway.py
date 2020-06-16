@@ -122,7 +122,8 @@ def concentration(time,x_away,initial_D):
     z_d = distance_tuple[1]
     sigma = A*(x_d**B) 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((x_away-x_d)**2+z_d**2))
-    
+
+    print(conc_of_puff)
     return conc_of_puff
 
 def exposure_per_breath(time,x_away,initial_D): 
@@ -162,22 +163,30 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
 
 if __name__ == '__main__':
     #total_exposure(5)
-    #position(0.04)
 
     time = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    conc_array = []
     x_d_array = []
     z_d_array = []
+
     for t in time:
         distance_tuple = position(t,D_0)
         x_d = distance_tuple[0]
         z_d = distance_tuple[1]
         x_d_array.append(x_d)
         z_d_array.append(z_d)
+        plt.plot(x_d_array,z_d_array,'bo-')
+        label = "0.75"
+        plt.annotate(label, # this is the text
+                 (0,0), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,10), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+
     plt.plot(x_d_array,z_d_array)
     plt.xlabel('x_d')
     plt.ylabel('z_d')
     plt.show()
-
 '''
     t = 100 
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
