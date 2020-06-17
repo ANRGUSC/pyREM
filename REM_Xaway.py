@@ -46,10 +46,13 @@ def diameter_polynomial(time,initial_D):
 
     roots = max(np.roots(p))
     d = roots
+    #t_max = (((initial_D**2)*RHO*RV*TEMPERATURE)/(32*molec_diff*(p_sat-p_infin)))
+    #print(t_max)
 
     if np.iscomplex(d) == True:
        d = 0.44*initial_D
-       #d = diameter_polynomial(0.01842,initial_D)
+       #d = diameter_polynomial(t_max,initial_D)
+
 
     return d
 
@@ -165,7 +168,8 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
 
 if __name__ == '__main__':
     #total_exposure(5)
-      
+    diameter_polynomial(5,D_0)
+'''      
     t = 10
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
     x_away = [0.25,0.5,1,2,3]
@@ -180,3 +184,4 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
+'''
