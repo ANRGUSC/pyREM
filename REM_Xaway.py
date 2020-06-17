@@ -12,7 +12,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 1.00*10**-5 #initial diameter of droplet
+D_0 = 3.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -39,6 +39,7 @@ def diameter_polynomial(time,initial_D):
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
     p_sat = 611.21*math.exp((19.843-(TEMPERATURE/234.5))*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
+    beta = (8*molec_diff*(p_sat-p_infin))/((initial_D**2)*RV*TEMPERATURE)
 
     k = ((8*molec_diff*(p_sat-p_infin)*(initial_D**2)*time)/(RHO_P*RV*TEMPERATURE))
     m = -initial_D**2
@@ -47,12 +48,11 @@ def diameter_polynomial(time,initial_D):
     roots = max(np.roots(p))
     d = roots
     #t_max = (((initial_D**2)*RHO*RV*TEMPERATURE)/(32*molec_diff*(p_sat-p_infin)))
-    #print(t_max)
 
     if np.iscomplex(d) == True:
-       d = 0.44*initial_D
+        d = 0.71*initial_D
+       #d = 0.44*initial_D
        #d = diameter_polynomial(t_max,initial_D)
-
 
     return d
 
@@ -168,8 +168,7 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
 
 if __name__ == '__main__':
     #total_exposure(5)
-    diameter_polynomial(5,D_0)
-'''      
+      
     t = 10
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
     x_away = [0.25,0.5,1,2,3]
@@ -184,4 +183,3 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
-'''
