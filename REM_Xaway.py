@@ -76,7 +76,7 @@ def terminal_velocity(time,initial_D):
     m = 72*VISCOSITY
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-    
+
     return 10*roots.x[0]
 
 
@@ -101,7 +101,13 @@ def position(time,initial_D=D_0):
     #x_d = X_0 + V_X*min(time, time_to_hit_ground)
     #z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
     x_d = X_0 + V_X*time
-    z_d = Z_0-v_t*time
+    z_position = Z_0-v_t*time
+
+    if z_position >= -2:
+        z_d = z_position 
+    else:
+        z_d = -2
+
     distance_tuple = (x_d,z_d)
 
     return distance_tuple
@@ -163,49 +169,8 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
 
 if __name__ == '__main__':
     #total_exposure(5)
-
-    x_d_array = []
-    z_d_array = []
-
-    for t in range(0,10):
-        distance_tuple = position(t,D_0)
-        x_d = distance_tuple[0]
-        z_d = distance_tuple[1]
-        x_d_array.append(x_d)
-        z_d_array.append(z_d)
-        plt.plot(x_d_array,z_d_array,'bo-')
-        label1 = "1.792506"
-        label2 = "4.31106737"
-        label3 = "5.17359135"
-        label4 = "6.03585657"
-        plt.annotate(label1, # this is the text
-                 (4,-0.0023738505199829823), # this is the point to label
-                 textcoords="offset points", # how to position the text
-                 xytext=(0,10), # distance from text to points (x,y)
-                 ha='center') # horizontal alignment can be left, right or center       
-        plt.annotate(label2, # this is the text
-                 (5,-0.002967313149978728), # this is the point to label
-                 textcoords="offset points", # how to position the text
-                 xytext=(0,10), # distance from text to points (x,y)
-                 ha='center') # horizontal alignment can be left, right or center
-        plt.annotate(label3, # this is the text
-                 (6,-0.00361005), # this is the point to label
-                 textcoords="offset points", # how to position the text
-                 xytext=(0,10), # distance from text to points (x,y)
-                 ha='center') # horizontal alignment can be left, right or center
-        plt.annotate(label4, # this is the text
-                 (7,-0.00423001), # this is the point to label
-                 textcoords="offset points", # how to position the text
-                 xytext=(0,10), # distance from text to points (x,y)
-                 ha='center') # horizontal alignment can be left, right or center
-
-    plt.plot(x_d_array,z_d_array)
-    plt.xlabel('x_d')
-    plt.ylabel('z_d')
-    plt.show()
-
-'''
-    t = 100 
+    
+    t = 10
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
     x_away = [0.25,0.5,1,2,3]
     for x in x_away:
@@ -219,4 +184,58 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
+
+
+'''
+    x_d_array = []
+    z_d_array = []
+
+    for t in range(0,3370):
+        distance_tuple = position(t,D_0)
+        x_d = distance_tuple[0]
+        z_d = distance_tuple[1]
+        x_d_array.append(x_d)
+        z_d_array.append(z_d)
+        plt.plot(x_d_array,z_d_array,'bo-')
+        label1 = "86.2265"
+        label2 = "258.6795"
+        label3 = "1.40789e-12"
+        label4 = "2.2130e-09"
+        label5 = "3.6070e-41"
+        label6 = "2.1235e-27"
+        plt.annotate(label1, # this is the text
+                 (100,-0.0541498), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,5), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+        plt.annotate(label2, # this is the text
+                 (300,-0.199938), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,5), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+        plt.annotate(label3, # this is the text
+                 (800,-0.366552), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,5), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center       
+        plt.annotate(label4, # this is the text
+                 (1000,-0.479612), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,5), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+        plt.annotate(label5, # this is the text
+                 (2000,-1.18177), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,5), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+        plt.annotate(label6, # this is the text
+                 (3000,-1.77088), # this is the point to label
+                 textcoords="offset points", # how to position the text
+                 xytext=(0,5), # distance from text to points (x,y)
+                 ha='center') # horizontal alignment can be left, right or center
+
+    plt.plot(x_d_array,z_d_array)
+    plt.xlabel('x_d')
+    plt.ylabel('z_d')
+    plt.show()
 '''
