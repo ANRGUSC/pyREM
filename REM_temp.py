@@ -48,8 +48,8 @@ def diameter_polynomial(time,temp,initial_D):
     d = roots
 
     if np.iscomplex(d) == True:
-       d = 0.44*initial_D
-       #d = diameter_polynomial(0.01842,initial_D)
+       d = 0.71*initial_D
+
 
     return d
 
@@ -165,7 +165,7 @@ def total_exposure(time,temp=TEMPERATURE,initial_D=D_0):
 
 if __name__ == '__main__':
     #total_exposure(5)
-  
+
     t = 10
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
     temperature = [0,10,20,30]
@@ -173,7 +173,7 @@ if __name__ == '__main__':
         exposure_array = []
         for init_D in initial_D_list:
             temp_k = temp+273.15
-            exposure = total_exposure(t,temp_k,init_D)
+            exposure = total_exposure(t,temp_k,init_D)/(30.8972) #normalize the curves
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "T = " + str(temp))
     plt.xlabel('Droplet Size')
@@ -181,4 +181,3 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
-
