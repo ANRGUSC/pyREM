@@ -38,6 +38,7 @@ def diameter_polynomial(time,temp,initial_D):
     '''
     molec_diff = (2.16*10**-5)*(temp/273.15)**1.8 #molecular diffusivity of water vapor
     p_sat = 611.21*math.exp((19.843-(temp/234.5))*((temp-273.15)/(temp-16.01)))
+    #p_sat = 611.21*math.exp((18.678-((temp-273.15)/234.5))*((temp-273.15)/(257.14+(temp-273.15))))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
 
     k = ((8*molec_diff*(p_sat-p_infin)*(initial_D**2)*time)/(RHO_P*RV*temp))
@@ -49,7 +50,6 @@ def diameter_polynomial(time,temp,initial_D):
 
     if np.iscomplex(d) == True:
        d = 0.71*initial_D
-
 
     return d
 
@@ -71,13 +71,25 @@ def terminal_velocity(time,temp,initial_D):
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
     d = diameter_polynomial(time,temp,initial_D) 
-    n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
-    p = 4*(d**2)*(RHO_D-RHO_A) 
-    m = 72*VISCOSITY
+    v_t = terminal_velocity(time,temp,initial_D)
+    #n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
+    #p = 4*(d**2)*(RHO_D-RHO_A) 
+    #m = 72*VISCOSITY
 
-    roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    #roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    #print(10*roots.x[0])
 
-    return 10*roots.x[0]
+    #return 10*roots.x[0]
+    if time = 0:
+        reynolds_p = 0.000171194
+    else:
+        reynolds_p = RHO_A*v_t*d/VISCOSITY
+
+    drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p 
+    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
+    print(v_t)
+
+    return v_t
 
 
 def position(time,temp,initial_D): 
@@ -102,7 +114,7 @@ def position(time,temp,initial_D):
     if z_position >= -2:
         z_d = z_position 
     else:
-        z_d = -2
+        z_d = -2 #droplet reaches the ground
 
     distance_tuple = (x_d,z_d)
 
@@ -143,10 +155,9 @@ def exposure_per_breath(time,temp,initial_D):
 
     return exposure
 
-def total_exposure(time,temp=TEMPERATURE,initial_D=D_0):
-    ''' This function estimates the total dosage a person is exposed to after many Guassian puffs by multiplying the
-    respiratory rate x time to find the number of times the infected person has exhaled droplets into the air by exposure_per_breath
-    function. 
+def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
+    ''' This function estimates the total dosage a person is exposed to after many Guassian puffs have passed by by multiplying the
+    exposure_per_breath function by the number of breaths.
 
     Parameters:
         time (float): Time in seconds for which the the total exposure is calculated.
@@ -165,9 +176,11 @@ def total_exposure(time,temp=TEMPERATURE,initial_D=D_0):
 
 if __name__ == '__main__':
     #total_exposure(5)
-
+    terminal_velocity(5,293.15,D_0)
+ 
+'''
     t = 10
-    initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
+    initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     temperature = [0,10,20,30]
     for temp in temperature:
         exposure_array = []
@@ -181,3 +194,4 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
+'''
