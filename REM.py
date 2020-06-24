@@ -14,7 +14,7 @@ A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
 X_0 = 0 #initial X position
-Z_0 = 2 #Initial vertical position
+Z_0 = 0 #Initial vertical position
 RESPIRATORY_RATE = 0.25 #breaths/second from avg of 15 bpm
 RELATIVE_HUMMIDITY = 60 #relative hummidity
 TEMPERATURE = 293.15 # ambient temperature in Kelvin
@@ -37,6 +37,9 @@ def droplet_diameter(time):
         d (float): Returns d, a float value representing the diameter of the droplet after it has 
                 evaporated after t seconds. 
     '''
+    if time <= 0:
+        return D_0
+
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
     p_sat = 611.21*math.exp(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
@@ -61,10 +64,20 @@ def terminal_velocity(time):
                     and neglects the Buoyant force. 
 
     '''
+    if time <= 0:
+        return (RHO_P*D_0**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
+
     d = droplet_diameter(time)
-    reynolds_p = RHO_A*V_X*d/VISCOSITY #reynolds number calculation
+    #v_t = terminal_velocity(time)
+
+    #if time <= 0:
+        #reynolds_p = 0.00064073
+    #else: 
+        #reynolds_p = RHO_A*v_t*d/VISCOSITY #reynolds number calculation
+    reynolds_p = 0.000171194 #only for D_0 = 10um
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
-    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/3*RHO_A*drag_coef)
+    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
+
     return v_t
 
 def position(time): 
@@ -101,10 +114,10 @@ def concentration(time):
         conc_of_puff (float): a float value containing the concentration of the puff that interacts with a person X_AWAY 
         from the infected source.
     '''	
-    distance_tuple = position(time) 
+    distance_tuple = position(time)
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
-    sigma = A*(x_d**B) #dispersion coefficient
+    sigma = A*(x_d**B) #dispersion coefficient 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((X_AWAY-x_d)**2+z_d**2))
     return conc_of_puff
 
@@ -138,7 +151,8 @@ def total_exposure(time):
     exposure_tuple = exposure_per_breath(time)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    print(total_dosage)
+    #print(total_dosage)
+
     return total_dosage
 
 def exposure_with_mask(time):
@@ -155,12 +169,12 @@ def exposure_with_mask(time):
     total_dosage = total_exposure(time)
     dosage_with_mask = mask_type*total_dosage
     #print(dosage_with_mask)
+
     return dosage_with_mask
 
 #example usage, for testing
 if __name__ == '__main__':
-    total_exposure(5)
-    #exposure_with_mask(40)
+    #total_exposure(5)
 '''
     exposure_array = []
     time_array = []
