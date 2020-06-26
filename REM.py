@@ -43,7 +43,7 @@ def droplet_diameter(time):
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
     beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*TEMPERATURE) #evaporation rate
 
-    d_min = 0.44*D_0
+    d_min = 0.71*D_0
     d = max(D_0*math.sqrt(max(1-beta*time,0)), d_min)
 
     return d
