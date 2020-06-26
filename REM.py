@@ -19,11 +19,9 @@ RESPIRATORY_RATE = 0.25 #breaths/second from avg of 15 bpm
 RELATIVE_HUMMIDITY = 60 #relative hummidity
 TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
-X_AWAY = 4 #a distance X meters away from source 
-
+X_AWAY = 2 #a distance X meters away from source 
 N95_MASK = 0.001 #filters out 99.9% of aerosals 
-CLOTH_MASK = 0.9 # filters out only 10% of aerosals
-LEVEL_1_MASK = 0.05 #filters 95% aerosals
+
 
 
 def droplet_diameter(time): 
@@ -77,6 +75,7 @@ def terminal_velocity(time):
     reynolds_p = 0.000171194 #only for D_0 = 10um
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
+    #print(v_t)
 
     return v_t
 
@@ -91,15 +90,21 @@ def position(time):
         (x_d,z_d): a 2-tuple of float values containing the horizontal and vertical distance of the drop in meters
                    after t seconds.
     '''	
+    if time <= 0:
+        return (X_0, Z_0)
 
     d = droplet_diameter(time)
-    v_t = terminal_velocity(d)
+    v_t = terminal_velocity(time)
+    x_d = X_0 + V_X*time
+    z_position = Z_0-v_t*time
 
-    time_to_hit_ground = Z_0/v_t
-    x_d = X_0 + V_X*min(time, time_to_hit_ground)
-    z_d = max(Z_0-v_t*time,0) #take into account droplet hitting the ground
+    if z_position >= -2:
+        z_d = z_position 
+    else:
+        z_d = -2
 
     distance_tuple = (x_d,z_d)
+
     return distance_tuple
 
 
@@ -119,6 +124,7 @@ def concentration(time):
     z_d = distance_tuple[1]
     sigma = A*(x_d**B) #dispersion coefficient 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((X_AWAY-x_d)**2+z_d**2))
+
     return conc_of_puff
 
 def exposure_per_breath(time): 
@@ -151,7 +157,7 @@ def total_exposure(time):
     exposure_tuple = exposure_per_breath(time)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
 
@@ -165,26 +171,12 @@ def exposure_with_mask(time):
         dosage_with_mask (float): a float value representing the total dosage a person is exposed to after several breaths are
         taken from an infected source while wearing specified mask. 
     '''	
-    mask_type = N95_MASK
     total_dosage = total_exposure(time)
-    dosage_with_mask = mask_type*total_dosage
-    #print(dosage_with_mask)
+    dosage_with_mask = N95_MASK*total_dosage
+    print(dosage_with_mask)
 
     return dosage_with_mask
 
 #example usage, for testing
 if __name__ == '__main__':
-    #total_exposure(5)
-'''
-    exposure_array = []
-    time_array = []
-    for i in range(0,40):
-        exposure = total_exposure(i)
-        exposure_array.append(exposure)
-        time_array.append(i)
-    plt.plot(time_array,exposure_array)
-    plt.xlabel('Time')
-    plt.ylabel('Total Exposure')
-    plt.title('Exposure vs Time Graph')
-    plt.show()
-'''
+    total_exposure(5)
