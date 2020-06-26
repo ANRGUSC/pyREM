@@ -49,7 +49,7 @@ def diameter_polynomial(time,temp,initial_D):
     d = roots
 
     if np.iscomplex(d) == True:
-       d = 0.71*initial_D
+       d = 0.44*initial_D
 
     return d
 
@@ -71,23 +71,26 @@ def terminal_velocity(time,temp,initial_D):
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
     d = diameter_polynomial(time,temp,initial_D) 
+    '''
     v_t = terminal_velocity(time,temp,initial_D)
-    #n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
-    #p = 4*(d**2)*(RHO_D-RHO_A) 
-    #m = 72*VISCOSITY
+    n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
+    p = 4*(d**2)*(RHO_D-RHO_A) 
+    m = 72*VISCOSITY
 
-    #roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-    #print(10*roots.x[0])
+    roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
 
-    #return 10*roots.x[0]
-    if time = 0:
-        reynolds_p = 0.000171194
-    else:
-        reynolds_p = RHO_A*v_t*d/VISCOSITY
+    return 10*roots.x[0]
+    '''
+    v = terminal_velocity(time-0.05,temp,initial_D)
 
-    drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p 
+    if time <= 0:
+        reynolds_p = 0.00064073
+    else: 
+        reynolds_p = RHO_A*v*d/VISCOSITY #reynolds number calculation
+    
+    drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
-    print(v_t)
+    #print(v_t)
 
     return v_t
 
@@ -169,17 +172,20 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,temp,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
     #total_exposure(5)
-    terminal_velocity(5,293.15,D_0)
- 
+    #terminal_velocity(5,293.15,D_0)
+    
+    initial_D_list = list(np.arange(1*10**-6, 101*10**-6, 10**-6))
+    for init_D in initial_D_list:
+        total_exposure(5,273.15,init_D)
 '''
-    t = 10
+    t = 5
     initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     temperature = [0,10,20,30]
     for temp in temperature:
