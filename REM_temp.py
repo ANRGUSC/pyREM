@@ -12,7 +12,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 1.00*10**-5 #initial diameter of droplet
+D_0 = 6.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -90,6 +90,8 @@ def terminal_velocity(time,temp,initial_D):
     
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
     v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
+    #print(reynolds_p)
+    #print(drag_coef)
     #print(v_t)
 
     return v_t
@@ -111,8 +113,16 @@ def position(time,temp,initial_D):
 
     d = diameter_polynomial(time,temp,initial_D)
     v_t = terminal_velocity(time,temp,initial_D)
+    
+    d_tuple = position(time-1,temp,initial_D)
+    if time <=0:
+        z_0 = Z_0
+    else:
+        z_0 = d_tuple[1]
+
     x_d = X_0 + V_X*time
-    z_position = Z_0-v_t*time
+    #z_position = Z_0-v_t*time
+    z_position = z_0-v_t*time
 
     if z_position >= -2:
         z_d = z_position 
@@ -120,6 +130,7 @@ def position(time,temp,initial_D):
         z_d = -2 #droplet reaches the ground
 
     distance_tuple = (x_d,z_d)
+    print(distance_tuple)
 
     return distance_tuple
 
@@ -172,7 +183,7 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,temp,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    print(total_dosage)
+    #print(total_dosage)
 
     return total_dosage
     
@@ -180,10 +191,11 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
 if __name__ == '__main__':
     #total_exposure(5)
     #terminal_velocity(5,293.15,D_0)
+    position(1,293.15,D_0)
     
-    initial_D_list = list(np.arange(1*10**-6, 101*10**-6, 10**-6))
-    for init_D in initial_D_list:
-        total_exposure(5,273.15,init_D)
+    #initial_D_list = list(np.arange(1*10**-6, 101*10**-6, 10**-6))
+    #for init_D in initial_D_list:
+        #total_exposure(5,273.15,init_D)
 '''
     t = 5
     initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
