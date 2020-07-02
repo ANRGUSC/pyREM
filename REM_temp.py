@@ -49,7 +49,7 @@ def diameter_polynomial(time,temp,initial_D):
     d = roots
 
     if np.iscomplex(d) == True:
-       d = 0.44*initial_D
+       d = 0.71*initial_D
 
     return d
 
@@ -105,6 +105,7 @@ def position(time,temp,initial_D):
 
     x_d = X_0 + V_X*time
     z_position = Z_0-v_integral[0]
+    #z_position = Z_0-v_t*time
 
     if z_position >= -2:
         z_d = z_position 
@@ -164,15 +165,15 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,temp,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
-    #total_exposure(5)
-    #terminal_velocity(5,293.15,D_0)
-   
+    total_exposure(1)
+    #position(1,293.15,D_0)
+
 '''
     t = 5
     initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
