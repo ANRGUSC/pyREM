@@ -71,17 +71,15 @@ def terminal_velocity(time,temp,initial_D):
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
     d = diameter_polynomial(time,temp,initial_D) 
-    v = terminal_velocity(time-0.05,temp,initial_D)
+    n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
+    p = 4*(d**2)*(RHO_D-RHO_A)*G 
+    m = 72*VISCOSITY
 
-    if time <= 0:
-        reynolds_p = 0.00064073
-    else: 
-        reynolds_p = RHO_A*v*d/VISCOSITY #reynolds number calculation
-    
-    drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
-    v_t = math.sqrt((4*d*(RHO_D-RHO_A)*G)/(3*RHO_A*drag_coef))
+    roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    #print(roots.x[0])
 
-    return v_t
+    return roots.x[0]
+ 
 
 
 def position(time,temp,initial_D): 
@@ -165,16 +163,14 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,temp,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    print(total_dosage)
+    #print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
-    total_exposure(1)
-    #position(1,293.15,D_0)
+    #total_exposure(5)
 
-'''
     t = 5
     initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     temperature = [0,10,20,30]
@@ -190,4 +186,3 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
-'''
