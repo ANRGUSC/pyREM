@@ -8,11 +8,10 @@ RHO_A = 1.21 #density of air in kg/m^3
 RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
 RHO = RHO_A
 RHO_P = RHO_D
-
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 3.00*10**-5 #initial diameter of droplet
+D_0 = 1.00*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -22,7 +21,7 @@ RESPIRATORY_RATE = 0.25 #breaths/second from avg of 15 bpm
 RELATIVE_HUMMIDITY = 60 #relative hummidity
 TEMPERATURE = 293.15 # ambient temperature in Kelvin
 V_X = 1 #horizontal velocity 1m/s
-X_AWAY = 4 #a distance X meters away from source 
+X_AWAY = 2 #a distance X meters away from source 
 
 
 def diameter_polynomial(time,initial_D):
@@ -47,12 +46,9 @@ def diameter_polynomial(time,initial_D):
 
     roots = max(np.roots(p))
     d = roots
-    #t_max = (((initial_D**2)*RHO*RV*TEMPERATURE)/(32*molec_diff*(p_sat-p_infin)))
 
     if np.iscomplex(d) == True:
         d = 0.71*initial_D
-       #d = 0.44*initial_D
-       #d = diameter_polynomial(t_max,initial_D)
 
     return d
 
@@ -75,12 +71,13 @@ def terminal_velocity(time,initial_D):
 
     d = diameter_polynomial(time,initial_D) 
     n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
-    p = 4*(d**2)*(RHO_D-RHO_A) 
+    p = 4*(d**2)*(RHO_D-RHO_A)*G 
     m = 72*VISCOSITY
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    v_t = roots.x[0]
 
-    return 10*roots.x[0]
+    return v_t
 
 
 def position(time,initial_D): 
@@ -99,13 +96,16 @@ def position(time,initial_D):
 
     d = diameter_polynomial(time,initial_D)
     v_t = terminal_velocity(time, initial_D)
+
+    v_integral = integrate.quad(terminal_velocity, 0, time, args=(initial_D,))
+
     x_d = X_0 + V_X*time
-    z_position = Z_0-v_t*time
+    z_position = Z_0-v_integral[0]
 
     if z_position >= -2:
         z_d = z_position 
     else:
-        z_d = -2
+        z_d = -2 #droplet reaches the ground
 
     distance_tuple = (x_d,z_d)
 
@@ -161,17 +161,18 @@ def total_exposure(time,x_away=X_AWAY,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,x_away,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
-    #total_exposure(5)
-      
-    t = 10
+    total_exposure(5)
+
+'''
+    t = 5
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
-    x_away = [0.25,0.5,1,2,3]
+    x_away = [0.25,0.5,1,2]
     for x in x_away:
         exposure_array = []
         for init_D in initial_D_list:
@@ -183,3 +184,4 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
+'''
