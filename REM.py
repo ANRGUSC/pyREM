@@ -5,7 +5,9 @@ import numpy as np
 
 
 RHO_A = 1.21 #also called RHO, density of air in kg/m^3 
-RHO_D = 1000 #also called RHO_P, density of droplet in kg/m^3; same as RHO_P
+RHO_D = 1000 #also called RHO_P, density of droplet in kg/m^3
+RHO = RHO_A
+RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
@@ -23,8 +25,7 @@ X_AWAY = 2 #a distance X meters away from source
 N95_MASK = 0.001 #filters out 99.9% of aerosals 
 
 
-
-def droplet_diameter(time): 
+def diameter_polynomial(time): 
     ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
      on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
 
@@ -35,16 +36,19 @@ def droplet_diameter(time):
         d (float): Returns d, a float value representing the diameter of the droplet after it has 
                 evaporated after t seconds. 
     '''
-    if time <= 0:
-        return D_0
-
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
-    p_sat = 611.21*math.exp(((19.843-TEMPERATURE)/234.5)*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
+    p_sat = 611.21*math.exp((19.843-(TEMPERATURE/234.5))*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
-    beta = (8*molec_diff*(p_sat-p_infin))/((D_0**2)*RV*TEMPERATURE) #evaporation rate
 
-    d_min = 0.71*D_0
-    d = max(D_0*math.sqrt(max(1-beta*time,0)), d_min)
+    k = ((8*molec_diff*(p_sat-p_infin)*(D_0**2)*time)/(RHO_P*RV*TEMPERATURE))
+    m = -D_0**2
+    p = np.poly1d([1, 0, m, 0, k])
+
+    roots = max(np.roots(p))
+    d = roots
+
+    if np.iscomplex(d) == True:
+       d = 0.71*D_0
 
     return d
 
@@ -65,19 +69,19 @@ def terminal_velocity(time):
     if time <= 0:
         return (RHO_P*D_0**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
-    d = droplet_diameter(time)
-    #v_t = terminal_velocity(time)
+    d = diameter_polynomial(time)
+    v = terminal_velocity(time-0.05)
 
-    #if time <= 0:
-        #reynolds_p = 0.00064073
-    #else: 
-        #reynolds_p = RHO_A*v_t*d/VISCOSITY #reynolds number calculation
-    reynolds_p = 0.000171194 #only for D_0 = 10um
+    if time <= 0:
+        reynolds_p = 0.00064073
+    else: 
+        reynolds_p = RHO_A*v*d/VISCOSITY #reynolds number calculation
+    
     drag_coef = 24*(1+0.15*reynolds_p**0.687)/reynolds_p #Drag Coefficient calculation
-    v_t = math.sqrt((4*d*(RHO_D - RHO_A)*G)/(3*RHO_A*drag_coef))
-    #print(v_t)
+    v_t = math.sqrt((4*d*(RHO_D-RHO_A)*G)/(3*RHO_A*drag_coef))
 
     return v_t
+
 
 def position(time): 
     ''' This function estimates the horizontal and vertical distance the droplet has travelled at an inputted time for a 
@@ -93,7 +97,7 @@ def position(time):
     if time <= 0:
         return (X_0, Z_0)
 
-    d = droplet_diameter(time)
+    d = diameter_polynomial(time)
     v_t = terminal_velocity(time)
     x_d = X_0 + V_X*time
     z_position = Z_0-v_t*time
@@ -173,7 +177,7 @@ def exposure_with_mask(time):
     '''	
     total_dosage = total_exposure(time)
     dosage_with_mask = N95_MASK*total_dosage
-    print(dosage_with_mask)
+    #print(dosage_with_mask)
 
     return dosage_with_mask
 
