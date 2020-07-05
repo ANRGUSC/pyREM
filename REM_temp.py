@@ -12,7 +12,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 1.00*10**-5 #initial diameter of droplet
+D_0 = 1*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -38,7 +38,6 @@ def diameter_polynomial(time,temp,initial_D):
     '''
     molec_diff = (2.16*10**-5)*(temp/273.15)**1.8 #molecular diffusivity of water vapor
     p_sat = 611.21*math.exp((19.843-(temp/234.5))*((temp-273.15)/(temp-16.01)))
-    #p_sat = 611.21*math.exp((18.678-((temp-273.15)/234.5))*((temp-273.15)/(257.14+(temp-273.15))))
     p_infin = p_sat*RELATIVE_HUMMIDITY/100
 
     k = ((8*molec_diff*(p_sat-p_infin)*(initial_D**2)*time)/(RHO_P*RV*temp))
@@ -76,11 +75,10 @@ def terminal_velocity(time,temp,initial_D):
     m = 72*VISCOSITY
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-    #print(roots.x[0])
+    v_t = roots.x[0]
 
-    return roots.x[0]
+    return v_t
  
-
 
 def position(time,temp,initial_D): 
     ''' This function estimates the horizontal and vertical distance the droplet has travelled at an inputted time for a 
@@ -103,7 +101,6 @@ def position(time,temp,initial_D):
 
     x_d = X_0 + V_X*time
     z_position = Z_0-v_integral[0]
-    #z_position = Z_0-v_t*time
 
     if z_position >= -2:
         z_d = z_position 
@@ -146,7 +143,7 @@ def exposure_per_breath(time,temp,initial_D):
         time, and the error due to possible numerical error in the integrand from the use of quad 
     ''' 
     exposure = integrate.quad(concentration, 0, time, args=(temp,initial_D,)) #keep x_away constant while integrating
-
+    print(exposure)
     return exposure
 
 def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
@@ -163,7 +160,7 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,temp,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
     
@@ -171,6 +168,11 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
 if __name__ == '__main__':
     #total_exposure(5)
 
+    #initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
+    #for init_D in initial_D_list:
+        #total_exposure(5,293.15,init_D)
+
+'''
     t = 5
     initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     temperature = [0,10,20,30]
@@ -186,3 +188,4 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
+'''
