@@ -8,7 +8,6 @@ RHO_A = 1.21 #density of air in kg/m^3
 RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
 RHO = RHO_A
 RHO_P = RHO_D
-
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
@@ -48,8 +47,7 @@ def diameter_polynomial(time,r_h,initial_D):
     d = roots
 
     if np.iscomplex(d) == True:
-       d = 0.44*initial_D
-       #d = diameter_polynomial(0.01842,initial_D)
+        d = 0.71*initial_D
 
     return d
 
@@ -72,12 +70,13 @@ def terminal_velocity(time,r_h,initial_D):
 
     d = diameter_polynomial(time,r_h,initial_D) 
     n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
-    p = 4*(d**2)*(RHO_D-RHO_A) 
+    p = 4*(d**2)*(RHO_D-RHO_A)*G 
     m = 72*VISCOSITY
 
     roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+    v_t = roots.x[0]
 
-    return 10*roots.x[0]
+    return v_t
 
 
 def position(time,r_h,initial_D): 
@@ -96,13 +95,16 @@ def position(time,r_h,initial_D):
 
     d = diameter_polynomial(time,r_h,initial_D)
     v_t = terminal_velocity(time,r_h,initial_D)
+
+    v_integral = integrate.quad(terminal_velocity, 0, time, args=(r_h,initial_D,))
+
     x_d = X_0 + V_X*time
-    z_position = Z_0-v_t*time
+    z_position = Z_0-v_integral[0]
 
     if z_position >= -2:
         z_d = z_position 
     else:
-        z_d = -2
+        z_d = -2 #droplet reaches the ground
 
     distance_tuple = (x_d,z_d)
 
@@ -158,21 +160,22 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,r_h,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     total_dosage = exposure_tuple[0]*number_of_breaths
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
-    #total_exposure(5)
-   
-    t = 10
+    total_exposure(5)
+
+'''  
+    t = 5
     initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
     hummidity = [50,60,70,80]
     for r in hummidity:
         exposure_array = []
         for init_D in initial_D_list:
-            exposure = total_exposure(t,r,init_D)
+            exposure = (total_exposure(t,r,init_D))/30.7594
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "RH = " + str(r))
     plt.xlabel('Droplet Size')
@@ -180,12 +183,4 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
-
-
-   
-
-
-
-
-
-
+'''
