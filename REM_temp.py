@@ -3,6 +3,10 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import root
+import sys
+from multiprocessing import Pool
+from itertools import product
+import pandas as pd
 
 RHO_A = 1.21 #density of air in kg/m^3 
 RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
@@ -143,6 +147,7 @@ def exposure_per_breath(time,temp,initial_D):
         time, and the error due to possible numerical error in the integrand from the use of quad 
     ''' 
     exposure = integrate.quad(concentration, 0, time, args=(temp,initial_D,)) #keep x_away constant while integrating
+
     print(exposure)
     return exposure
 
@@ -162,17 +167,50 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     total_dosage = exposure_tuple[0]*number_of_breaths
     print(total_dosage)
 
+    fout = open('REM_temp.csv', 'a')
+    fout.write(str(temp-273.15) + ',' + str(initial_D) + ',' + str(total_dosage) + "\n")
+    fout.close()
     return total_dosage
     
 
 if __name__ == '__main__':
-    total_exposure(5)
+    #total_exposure(5)
 
     #initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     #for init_D in initial_D_list:
         #total_exposure(5,293.15,init_D)
 
-'''
+    fout = open('REM_temp.csv', 'w')
+    fout.write("temp,initial_D,total_dosage\n")
+    fout.close()
+
+    t = [5]
+    initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10*10**-6))
+    temperature = [0,10,20,30]
+    temperature = [i + 273.15 for i in temperature]
+
+    p = Pool()
+    result = p.starmap(total_exposure, product(t, temperature, initial_D_list))
+
+    p.close()
+    p.join()
+
+
+    data = pd.read_csv("REM_temp.csv")
+    data = data.sort_values(by=["temp", "initial_D"])
+    initial_D_list = data["initial_D"].unique()
+    temperature = data["temp"].unique()
+
+    for temp in temperature:
+        plt.plot(initial_D_list,data.loc[data["temp"] == temp]["total_dosage"], label = "T = " + str(temp))
+    plt.xlabel('Droplet Size')
+    plt.ylabel('Concentration of Droplets')
+    plt.title('Concentration vs Droplet Size Graph')
+    plt.legend()
+    plt.show()
+
+
+"""
     t = 5
     initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     temperature = [0,10,20,30]
@@ -188,4 +226,5 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
-'''
+
+"""
