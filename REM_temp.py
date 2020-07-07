@@ -166,7 +166,7 @@ def total_exposure(time=5,temp=TEMPERATURE,initial_D=D_0):
     
 
 if __name__ == '__main__':
-    #total_exposure(5)
+    total_exposure(5)
 
     #initial_D_list = list(np.arange(1*10**-6, 100*10**-6, 10**-6))
     #for init_D in initial_D_list:
