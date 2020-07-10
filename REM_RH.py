@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import root
 
+#np.seterr(all='warn')
+np.seterr(all='raise')
+gvt  = 0 
+
 RHO_A = 1.21 #density of air in kg/m^3 
 RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
 RHO = RHO_A
@@ -11,7 +15,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 1.00*10**-5 #initial diameter of droplet
+D_0 = 9.7*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -27,7 +31,6 @@ X_AWAY = 2 #a distance X meters away from source
 def diameter_polynomial(time,r_h,initial_D):
     ''' This function estimates the droplet's diameter in micrometers as a function of time (s) that also depends
     on the relative hummidity (RH) and the temperature (T) in Kelvin which are set as constants in this program.
-
     Parameters:
         time (float): This parameter represents the time at which the diameter of the droplet will be calclulated, 
                     since the size of the droplet evaporates over time.
@@ -55,16 +58,14 @@ def terminal_velocity(time,r_h,initial_D):
     ''' This function estimates the terminal velocity in m/s of a respitory droplet as a function of
     the droplet's diamter "d" in micro meters. The terminal velocity also depends on defined constants and variables,
     gravity, drad coefficient, Reynolds number, and the density of the droplet and air.
-
     Parameters:
         d (float): A float representing the the diamter of the droplet which will be used to calculate the 
                 Reynolds number and then used to find the drag coefficient "Cd"
-
     Returns: 
         v_t (float): v_t, a float value that represents the terminal velocity of the droplet, when Fdrag = Fgrav 
                     and neglects the Buoyant force. 
-
     '''
+    global gvt
     if time <= 0:
         return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
 
@@ -73,8 +74,17 @@ def terminal_velocity(time,r_h,initial_D):
     p = 4*(d**2)*(RHO_D-RHO_A)*G 
     m = 72*VISCOSITY
 
-    roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-    v_t = roots.x[0]
+    try: 
+        roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+        v_t = roots.x[0]
+        gvt = v_t
+    except: 
+        v_t = gvt 
+#        print(time, gvt, d, n, m, p)
+#        print(time, gvt)
+#        print("problem")
+
+    
 
     return v_t
 
@@ -82,10 +92,8 @@ def terminal_velocity(time,r_h,initial_D):
 def position(time,r_h,initial_D): 
     ''' This function estimates the horizontal and vertical distance the droplet has travelled at an inputted time for a 
     certain terminal velocity, horizontal velocity, initital X_0 and Z_0 
-
     Parameters:
         time (float): Time in seconds at which the x_d and z_d values are evaluated.
-
     Returns: 
         (x_d,z_d): a 2-tuple of float values containing the horizontal and vertical distance of the drop in meters
                    after t seconds.
@@ -113,10 +121,8 @@ def position(time,r_h,initial_D):
 def concentration(time,r_h,initial_D): 
     ''' This function estimates the concentration of the droplets by modeling each breath as an ever expanding 
     Gaussian distribution.
-
     Parameters:
         time (float): Time in seconds at which the Gaussian distribution is evaluated.
-
     Returns: 
         conc_of_puff (float): a float value containing the concentration of the puff that interacts with a person X_AWAY 
         from the infected source.
@@ -127,16 +133,16 @@ def concentration(time,r_h,initial_D):
     sigma = A*(x_d**B) 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((X_AWAY-x_d)**2+z_d**2))
 
+    print(conc_of_puff)
+
     return conc_of_puff
 
 def exposure_per_breath(time,r_h,initial_D): 
     ''' This function estimates the dose of respiratory droplets that a person is exposed to by integrating the concentration 
     function above over the duration that the puff travels in the air. This function uses the python library scipy and the quad 
     function to evaluate the integral. 
-
     Parameters:
         time (float): Time in seconds that represents the upper limit at which the integral is evaluated.
-
     Returns: 
         exposure (2-tuple float): A 2-tuple of float value containing the concentration of the puff integrated over the inputted 
         time, and the error due to possible numerical error in the integrand from the use of quad 
@@ -149,10 +155,8 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     ''' This function estimates the total dosage a person is exposed to after many Guassian puffs by multiplying the
     respiratory rate x time to find the number of times the infected person has exhaled droplets into the air by exposure_per_breath
     function. 
-
     Parameters:
         time (float): Time in seconds for which the the total exposure is calculated.
-
     Returns: 
         total_dosage (float): a float value representing the total dosage a person is exposed to after several breaths are
         taken from an infected source. 
@@ -166,6 +170,7 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     
 
 if __name__ == '__main__':
+    gvt = 0
     total_exposure(5)
 
 '''  
