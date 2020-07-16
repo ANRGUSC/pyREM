@@ -9,13 +9,13 @@ np.seterr(all='raise')
 gvt  = 0 
 
 RHO_A = 1.21 #density of air in kg/m^3 
-RHO_D = 1000 #density of droplet in kg/m^3; same as RHO_P
+RHO_D = 1000 #density of droplet in kg/m^3
 RHO = RHO_A
 RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 9.7*10**-5 #initial diameter of droplet
+D_0 = 9.3*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -85,7 +85,6 @@ def terminal_velocity(time,r_h,initial_D):
 #        print("problem")
 
     
-
     return v_t
 
 
@@ -147,7 +146,7 @@ def exposure_per_breath(time,r_h,initial_D):
         exposure (2-tuple float): A 2-tuple of float value containing the concentration of the puff integrated over the inputted 
         time, and the error due to possible numerical error in the integrand from the use of quad 
     ''' 
-    exposure = integrate.quad(concentration, 0, time, args=(r_h,initial_D,)) #keep x_away constant while integrating
+    exposure = integrate.quad(concentration, 0, time, args=(r_h,initial_D,), limit=100) #keep x_away constant while integrating
 
     return exposure
 
@@ -163,7 +162,9 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     ''' 
     exposure_tuple = exposure_per_breath(time,r_h,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
-    total_dosage = exposure_tuple[0]*number_of_breaths
+    #total_dosage = exposure_tuple[0]*number_of_breaths
+    #total_dosage = exposure_tuple[0]
+    total_dosage = exposure_tuple
     print(total_dosage)
 
     return total_dosage
@@ -173,14 +174,16 @@ if __name__ == '__main__':
     gvt = 0
     total_exposure(5)
 
-'''  
+'''
     t = 5
-    initial_D_list = list(np.arange(10*10**-6, 100*10**-6, 10**-6))
-    hummidity = [50,60,70,80]
+    initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
+    #hummidity = [50,60,70,80]
+    hummidity = [50]
     for r in hummidity:
         exposure_array = []
         for init_D in initial_D_list:
-            exposure = (total_exposure(t,r,init_D))/30.7594
+            print(init_D)
+            exposure = (total_exposure(t,r,init_D))/15.435922858566114
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "RH = " + str(r))
     plt.xlabel('Droplet Size')
