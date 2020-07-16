@@ -80,11 +80,7 @@ def terminal_velocity(time,r_h,initial_D):
         gvt = v_t
     except: 
         v_t = gvt 
-#        print(time, gvt, d, n, m, p)
-#        print(time, gvt)
-#        print("problem")
-
-    
+ 
     return v_t
 
 
@@ -132,7 +128,7 @@ def concentration(time,r_h,initial_D):
     sigma = A*(x_d**B) 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((X_AWAY-x_d)**2+z_d**2))
 
-    print(conc_of_puff)
+    print(time, conc_of_puff)
 
     return conc_of_puff
 
@@ -146,9 +142,25 @@ def exposure_per_breath(time,r_h,initial_D):
         exposure (2-tuple float): A 2-tuple of float value containing the concentration of the puff integrated over the inputted 
         time, and the error due to possible numerical error in the integrand from the use of quad 
     ''' 
-    exposure = integrate.quad(concentration, 0, time, args=(r_h,initial_D,), limit=100) #keep x_away constant while integrating
+    #exposure = integrate.quad(concentration, 0, time, args=(r_h,initial_D,), limit=100) #keep x_away constant while integrating
+    #return exposure
 
-    return exposure
+    time_array = []
+    conc_array = []
+    for i in range(1,500,1):
+      tm = (i)/(100.0)+0.01
+      conc = concentration(tm, RELATIVE_HUMMIDITY, D_0)
+      conc_array.append(conc)
+      time_array.append(tm)
+    y = conc_array
+    x = time_array
+    exposure = integrate.simps(y, x, even = "avg")
+    #exposure = np.trapz(y,x,)
+    print(exposure)
+
+    return exposure 
+
+    
 
 def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     ''' This function estimates the total dosage a person is exposed to after many Guassian puffs by multiplying the
@@ -163,16 +175,32 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     exposure_tuple = exposure_per_breath(time,r_h,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
     #total_dosage = exposure_tuple[0]*number_of_breaths
-    #total_dosage = exposure_tuple[0]
-    total_dosage = exposure_tuple
-    print(total_dosage)
+    total_dosage = exposure_tuple[0]
+    #print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
     gvt = 0
-    total_exposure(5)
+    #total_exposure(5)
+    exposure_per_breath(5,60,D_0)
+
+'''  
+# For plotting conc vs time
+    time_array = []
+    conc_array = []
+
+    for i in range(1,500,1):
+      tm = (i)/(100.0)+0.01
+      conc = concentration(tm, RELATIVE_HUMMIDITY, D_0)
+      conc_array.append(conc)
+      time_array.append(tm)
+    plt.plot(time_array,conc_array)
+    plt.xlabel('Time')
+    plt.ylabel('Concentration')
+    plt.show() 
+'''
 
 '''
     t = 5
