@@ -3,6 +3,7 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import root
+from scipy.integrate import simps
 
 #np.seterr(all='warn')
 np.seterr(all='raise')
@@ -15,7 +16,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 9.3*10**-5 #initial diameter of droplet
+D_0 = 1*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -128,7 +129,7 @@ def concentration(time,r_h,initial_D):
     sigma = A*(x_d**B) 
     conc_of_puff = (NUMBER_OF_DROPLETS/((math.sqrt(2*math.pi)*sigma))**3)*math.exp((-1/(2*sigma**2))*((X_AWAY-x_d)**2+z_d**2))
 
-    print(time, conc_of_puff)
+    #print(time, conc_of_puff)
 
     return conc_of_puff
 
@@ -147,21 +148,24 @@ def exposure_per_breath(time,r_h,initial_D):
 
     time_array = []
     conc_array = []
-    for i in range(1,500,1):
-      tm = (i)/(100.0)+0.01
-      conc = concentration(tm, RELATIVE_HUMMIDITY, D_0)
+    for i in range(1,501,1):
+      tm = (i)/(100.0)
+      conc = concentration(tm,r_h,initial_D)
       conc_array.append(conc)
       time_array.append(tm)
+    
     y = conc_array
     x = time_array
-    exposure = integrate.simps(y, x, even = "avg")
-    #exposure = np.trapz(y,x,)
-    print(exposure)
+    for i in range(0,len(x)):
+       x[i] = round(x[i],5)
+       y[i] = round(y[i],5)
+    
+    exposure = np.trapz(y,x)
+    #print(exposure)
 
     return exposure 
 
     
-
 def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     ''' This function estimates the total dosage a person is exposed to after many Guassian puffs by multiplying the
     respiratory rate x time to find the number of times the infected person has exhaled droplets into the air by exposure_per_breath
@@ -184,7 +188,25 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
 if __name__ == '__main__':
     gvt = 0
     #total_exposure(5)
-    exposure_per_breath(5,60,D_0)
+    #exposure_per_breath(5,60,D_0)
+
+    t = 5
+    initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
+    #hummidity = [50,60,70,80]
+    hummidity = [60]
+    for r in hummidity:
+        exposure_array = []
+        for init_D in initial_D_list:
+            print(init_D)
+            exposure = exposure_per_breath(t,r,init_D)
+            print(exposure)
+            exposure_array.append(exposure)
+        plt.plot(initial_D_list,exposure_array, label = "RH = " + str(r))
+    plt.xlabel('Droplet Size')
+    plt.ylabel('Concentration of Droplets')
+    plt.title('Concentration vs Droplet Size Graph')
+    plt.legend()
+    plt.show() 
 
 '''  
 # For plotting conc vs time
@@ -199,24 +221,5 @@ if __name__ == '__main__':
     plt.plot(time_array,conc_array)
     plt.xlabel('Time')
     plt.ylabel('Concentration')
-    plt.show() 
-'''
-
-'''
-    t = 5
-    initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
-    #hummidity = [50,60,70,80]
-    hummidity = [50]
-    for r in hummidity:
-        exposure_array = []
-        for init_D in initial_D_list:
-            print(init_D)
-            exposure = (total_exposure(t,r,init_D))/15.435922858566114
-            exposure_array.append(exposure)
-        plt.plot(initial_D_list,exposure_array, label = "RH = " + str(r))
-    plt.xlabel('Droplet Size')
-    plt.ylabel('Concentration of Droplets')
-    plt.title('Concentration vs Droplet Size Graph')
-    plt.legend()
     plt.show() 
 '''
