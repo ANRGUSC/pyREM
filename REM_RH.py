@@ -75,7 +75,7 @@ def terminal_velocity(time,r_h,initial_D):
         p = 4*(d**2)*(RHO_D-RHO_A)*G 
         m = 72*VISCOSITY
         try: 
-            roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+            roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,1)
             v_t = roots.x[0]
             gvt = v_t
         except: 
@@ -179,19 +179,20 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     number_of_breaths = RESPIRATORY_RATE*time
     #total_dosage = exposure_tuple[0]*number_of_breaths
     total_dosage = exposure_tuple[0]
-    #print(total_dosage)
+    print(total_dosage)
 
     return total_dosage
     
 
 if __name__ == '__main__':
     gvt = 0
-    #total_exposure(5)
-    #terminal_velocity(5,60,D_0)
-
+    total_exposure(5)
+    #terminal_velocity(0.01,60,D_0)
+'''
     time_array = []
     z_d_array = []
     vt_array = []
+    d_array = []
 
     #for t in range(0,5):
     for i in range(1,50):
@@ -199,10 +200,12 @@ if __name__ == '__main__':
         d = 93*10**-6
         distance_tuple = position(t,60,d)
         vt = terminal_velocity(t,60,d)
+        dm = diameter_polynomial(t,60,d)
         z_d = distance_tuple[1]
         z_d_array.append(z_d)
         time_array.append(t)
         vt_array.append(vt)
+        d_array.append(dm)
        
     #plt.plot(time_array,z_d_array)
     #plt.xlabel('Time')
@@ -210,12 +213,18 @@ if __name__ == '__main__':
     #plt.title('Z pos vs Time @93um')
     #plt.show()
 
-    plt.plot(time_array,vt_array)
-    plt.xlabel('Time')
-    plt.ylabel('Terminal Velocity')
-    plt.title('Velocity vs Time @93um')
-    plt.show()
+    #plt.plot(time_array,vt_array)
+    #plt.xlabel('Time')
+    #plt.ylabel('Terminal Velocity')
+    #plt.title('Velocity vs Time @93um')
+    #plt.show()
 
+    plt.plot(time_array,d_array)
+    plt.xlabel('Time')
+    plt.ylabel('Diameter')
+    plt.title('Diameter vs Time @93um')
+    plt.show()
+'''
 '''
 # plot for trajectories
     initial_D_array = [85,89,93,95,97]
@@ -259,4 +268,3 @@ if __name__ == '__main__':
     plt.legend()
     plt.show() 
 '''
-
