@@ -16,7 +16,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 1*10**-5 #initial diameter of droplet
+D_0 = 9.3*10**-5 #initial diameter of droplet
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -68,20 +68,19 @@ def terminal_velocity(time,r_h,initial_D):
     '''
     global gvt
     if time <= 0:
-        return (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
-
-    d = diameter_polynomial(time,r_h,initial_D) 
-    n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
-    p = 4*(d**2)*(RHO_D-RHO_A)*G 
-    m = 72*VISCOSITY
-
-    try: 
-        roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
-        v_t = roots.x[0]
-        gvt = v_t
-    except: 
-        v_t = gvt 
- 
+        v_t = (RHO_P*initial_D**2*G)/(18*math.pi*VISCOSITY) #Stoke's Law for small velocities
+    else:
+        d = diameter_polynomial(time,r_h,initial_D) 
+        n = 10.8*VISCOSITY*((RHO_A*d)/VISCOSITY)**0.687 
+        p = 4*(d**2)*(RHO_D-RHO_A)*G 
+        m = 72*VISCOSITY
+        try: 
+            roots = root(lambda v: n*v**(2.687)+m*v**2-p*v,0.1)
+            v_t = roots.x[0]
+            gvt = v_t
+        except: 
+            v_t = gvt 
+    #print(v_t)
     return v_t
 
 
@@ -188,8 +187,60 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
 if __name__ == '__main__':
     gvt = 0
     #total_exposure(5)
-    #exposure_per_breath(5,60,D_0)
+    #terminal_velocity(5,60,D_0)
 
+    time_array = []
+    z_d_array = []
+    vt_array = []
+
+    #for t in range(0,5):
+    for i in range(1,50):
+        t = (i)/(10.0)
+        d = 93*10**-6
+        distance_tuple = position(t,60,d)
+        vt = terminal_velocity(t,60,d)
+        z_d = distance_tuple[1]
+        z_d_array.append(z_d)
+        time_array.append(t)
+        vt_array.append(vt)
+       
+    #plt.plot(time_array,z_d_array)
+    #plt.xlabel('Time')
+    #plt.ylabel('Z position')
+    #plt.title('Z pos vs Time @93um')
+    #plt.show()
+
+    plt.plot(time_array,vt_array)
+    plt.xlabel('Time')
+    plt.ylabel('Terminal Velocity')
+    plt.title('Velocity vs Time @93um')
+    plt.show()
+
+'''
+# plot for trajectories
+    initial_D_array = [85,89,93,95,97]
+
+    for init_D in initial_D_array:
+        x_d_array = []
+        z_d_array = []
+        for t in range(0,10):
+            d = init_D*10**-6
+            distance_tuple = position(t,60,d)
+            x_d = distance_tuple[0]
+            z_d = distance_tuple[1]
+            x_d_array.append(x_d)
+            z_d_array.append(z_d)
+        #print(x_d_array)
+        #print(z_d_array)
+        plt.plot(x_d_array,z_d_array, label = "D_0 = " + str(init_D))
+    plt.xlabel('X position')
+    plt.ylabel('Z position')
+    plt.title('Trajectories')
+    plt.legend()
+    plt.show()
+'''
+
+''' #plot for conc vs humidity
     t = 5
     initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
     #hummidity = [50,60,70,80]
@@ -207,19 +258,5 @@ if __name__ == '__main__':
     plt.title('Concentration vs Droplet Size Graph')
     plt.legend()
     plt.show() 
-
-'''  
-# For plotting conc vs time
-    time_array = []
-    conc_array = []
-
-    for i in range(1,500,1):
-      tm = (i)/(100.0)+0.01
-      conc = concentration(tm, RELATIVE_HUMMIDITY, D_0)
-      conc_array.append(conc)
-      time_array.append(tm)
-    plt.plot(time_array,conc_array)
-    plt.xlabel('Time')
-    plt.ylabel('Concentration')
-    plt.show() 
 '''
+
