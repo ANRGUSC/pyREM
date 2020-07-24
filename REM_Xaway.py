@@ -25,7 +25,7 @@ X_AWAY = 2 #default distance 2 meters away from source
 
 
 def diameter_polynomial(time,initial_D):
-     '''This function estimates the droplet's diameter in micrometers 
+    '''This function estimates the droplet's diameter in micrometers 
     as a function of time and initital size by finding the real roots of 
     the diameter polynomial. If the roots are complex, the droplet diameter has 
     reached its minimum, dmin, and is estimated as a percentage of the initial diameter. 
