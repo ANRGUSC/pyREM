@@ -11,7 +11,7 @@ RHO_P = RHO_D
 G = 9.81 #gravitational acceleration in m/s^2
 VISCOSITY = 1.81*10**-5 #viscosity of air in Pa s
 RV = 461.52 #J/kgK specific gas constant for water
-D_0 = 1.00*10**-5 #initial diameter of droplet in micro meters
+D_0 = 1.0*10**-5 #initial diameter of droplet in micro meters
 A = 0.06 #given constant in dispersion coefficient equation
 B = 0.92 #given constant in dispersion coefficient equation
 NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
@@ -42,18 +42,25 @@ def diameter_polynomial(time,r_h,initial_D):
     molec_diff = (2.16*10**-5)*(TEMPERATURE/273.15)**1.8 #molecular diffusivity of water vapor
     p_sat = 611.21*math.exp((19.843-(TEMPERATURE/234.5))*((TEMPERATURE-273.15)/(TEMPERATURE-16.01)))
     p_infin = p_sat*r_h/100
+    t_crit = (RHO_P*RV*TEMPERATURE*(initial_D**2))/(32*molec_diff*(p_sat-p_infin)) # time when Discriminant is 0
 
     k = ((8*molec_diff*(p_sat-p_infin)*(initial_D**2)*time)/(RHO_P*RV*TEMPERATURE))
     m = -initial_D**2
     p = np.poly1d([1, 0, m, 0, k])
-
     roots = max(np.roots(p))
-    d = roots
+#    d = roots
+#    if np.iscomplex(d) == True:
+#        d = 0.71*initial_D
 
-    if np.iscomplex(d) == True:
-        d = 0.71*initial_D
+    if time < t_crit:
+        d = roots
+    else:
+        #d = diameter_polynomial(t_crit,r_h,initial_D)
 
+    print(d)
     return d
+
+#    return dm
 
 def terminal_velocity(time,r_h,initial_D):
     ''' This function estimates the terminal velocity in m/s of the droplet as a function of time 
@@ -81,7 +88,6 @@ def terminal_velocity(time,r_h,initial_D):
 
     return v_t
 
-
 def position(time,r_h,initial_D): 
     ''' This function estimates the horizontal and vertical distance of droplet after t seconds. 
     The vertical distance, z_d, is calculated using an integral since the terminal velocity continues 
@@ -99,9 +105,7 @@ def position(time,r_h,initial_D):
     if time <= 0:
         return (X_0, Z_0)
 
-    d = diameter_polynomial(time,r_h,initial_D)
     v_t = terminal_velocity(time,r_h,initial_D)
-
     v_integral = integrate.quad(terminal_velocity, 0, time, args=(r_h,initial_D,))
 
     x_d = X_0 + V_X*time
@@ -140,36 +144,22 @@ def concentration(time,r_h,initial_D):
 
 def exposure_per_breath(time,r_h,initial_D): 
     ''' This function estimates the dose of respiratory droplets that a person is exposed to by 
-    integrating the puff over time. The function uses a numerical approach to calculate the integral
-    by using the trapezoidal rule.  
+    integrating the puff over time. The function uses the quad function to calculate the integral
+    using 50 subdivisions.  
 
     Parameters:
-        time (float): time in seconds
+        time (float): time in seconds that represents the upper limit of the integral
         r_h (int): relative humidity
         initial_D (float): initial droplet size in micrometers
 
     Returns: 
-        exposure (float): A float value representing the exposure per breath 
-        or concentration of the puff integrated over time.
+        exposure (2-tuple float): A 2-tuple of float value containing the 
+        concentration of the puff integrated over time and the possible 
+        numerical error in the integrand from the use of quad 
     ''' 
-    time_array = []
-    conc_array = []
-    for i in range(1,501,1):
-      tm = (i)/(100.0)
-      conc = concentration(tm,r_h,initial_D)
-      conc_array.append(conc)
-      time_array.append(tm)
-    
-    y = conc_array
-    x = time_array
-    for i in range(0,len(x)):
-       x[i] = round(x[i],5)
-       y[i] = round(y[i],5)
-    
-    exposure = np.trapz(y,x)
+    exposure = integrate.quad(concentration, 0, time, args=(r_h,initial_D,), limit=50)
 
-    return exposure 
-
+    return exposure
     
 def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     ''' This function estimates the total exposure by multiplying the 
@@ -184,9 +174,9 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
         total_dosage (float): a float value representing the total dosage a person 
         is exposed to after several breaths are taken from an infected source. 
     '''
-    exposure_p_breath = exposure_per_breath(time,r_h,initial_D)
+    exposure_tuple = exposure_per_breath(time,r_h,initial_D)
     number_of_breaths = RESPIRATORY_RATE*time
-    total_dosage = exposure_p_breath*number_of_breaths
+    total_dosage = exposure_tuple[0]*number_of_breaths
 
 #    print(total_dosage)
 
@@ -194,8 +184,24 @@ def total_exposure(time,r_h=RELATIVE_HUMMIDITY,initial_D=D_0):
     
 #example usage, for testing
 if __name__ == '__main__':
-#    total_exposure(5)
-
+#    total_exposure(5,60,D_0)
+    diameter_polynomial(0.018,60,D_0)
+'''    
+    time_array = []
+    d_array = []
+    for i in range(1,500):
+        t = (i)/(100.0)
+        d = 93*10**-6
+        time_array.append(t)
+        dm = diameter_polynomial(t,60,d)
+        d_array.append(dm)
+    plt.plot(time_array,d_array, label = "D_0 = 93um,  RH = 60,  T = 20") 
+    plt.xlabel('Time')
+    plt.ylabel('Diameter (m)')
+    plt.title('Diameter vs Time')
+    plt.legend()
+    plt.show()
+'''
 '''
 #   plot for concentration vs droplet size with humidity varied
     t = 5
@@ -206,7 +212,7 @@ if __name__ == '__main__':
 #        print(r)
         for init_D in initial_D_list:
 #            print(init_D)
-            exposure = exposure_per_breath(t,r,init_D)/(12.3487382)
+            exposure = total_exposure(t,r,init_D)/(15.435922858566114)
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "RH = " + str(r))
     plt.xlabel('Droplet Size')
