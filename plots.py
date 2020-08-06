@@ -5,7 +5,7 @@ from REM import diameter_polynomial,terminal_velocity,position,concentration,exp
 RELATIVE_HUMIDITY = 60 #default relative humidity
 TEMPERATURE = 293.15 #default ambient temperature in Kelvin
 X_AWAY = 2 #default distance 2 meters away from source 
-N_FACTOR = total_exposure(5,X_AWAY,TEMPERATURE,RELATIVE_HUMIDITY,1*10**-6)
+N_FACTOR = total_exposure(5,X_AWAY,TEMPERATURE,RELATIVE_HUMIDITY,1*10**-6) #dose of smaller droplets used to normalize curves
 
 def proximity_plot(time):
     initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
@@ -65,96 +65,15 @@ def humidity_plot(time):
 
     return 
 
-#example usage, for testing
-if __name__ == '__main__':
-   proximity_plot(5)
-#   temp_plot(5)
-#    humidity_plot(5)
-
-
-'''
-# D(t), v(t), z(t), x(t), and trajectory plots
-
-    initial_D_array = [93]
-
-    for init_D in initial_D_array:
-        time_array = []
-        x_d_array =[]
-        z_d_array = []
-        vt_array = []
-        d_array = []
-        conc_array = []
-        for i in range(1,50):
-            t = (i)/(10.0)
-            time_array.append(t)
-            d = init_D*10**-6
-
-            distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            x_d = distance_tuple[0]
-            x_d_array.append(x_d)
-
-            z_d = distance_tuple[1]
-            z_d_array.append(z_d)
-
-            vt = terminal_velocity(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            vt_array.append(vt)
-
-            dm = diameter_polynomial(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            d_array.append(dm)
-
-            conc = concentration(t,X_AWAY,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            conc_array.append(conc)
-
-# X position vs Time Plot
-#        plt.plot(time_array,x_d_array, label = "D_0 = " + str(init_D))
-#    plt.xlabel('Time')
-#    plt.ylabel('X position')
-#    plt.title('X Position vs Time')
-#    plt.legend()
-#    plt.show()
-
-# Z position vs Time plot       
-#        plt.plot(time_array,z_d_array, label = "D_0 = " + str(init_D)) 
-#    plt.xlabel('Time')
-#    plt.ylabel('Z position')
-#    plt.title('Z Position vs Time')
-#    plt.legend()
-#    plt.show()
-
-# Terminal Velocity vs Time plot
-#        plt.plot(time_array,vt_array, label = "D_0 = " + str(init_D))                                   
-#    plt.xlabel('Time')
-#    plt.ylabel('Terminal Velocity')
-#    plt.title('Velocity vs Time')
-#    plt.legend()
-#    plt.show()
-
-    # Diameter vs Time plot
-#        plt.plot(time_array,d_array, label = "D_0 = " + str(init_D))
-#    plt.xlabel('Time')
-#    plt.ylabel('Diameter (m)')
-#    plt.title('Diameter vs Time')
-#    plt.legend()
-#    plt.show()
-
-    # Concentration vs Time plot
-#        plt.plot(time_array,conc_array, label = "D_0 = " + str(init_D))
-#    plt.xlabel('Time')
-#    plt.ylabel('Concentration')
-#    plt.title('Concentration vs Time')
-#    plt.legend()
-#    plt.show()
-'''
-'''
-# plot for trajectories
+def trajectories(time=10):
     initial_D_array = [78,85,90,96]
 
     for init_D in initial_D_array:
         x_d_array = []
         z_d_array = []
-        for t in range(0,10):
+        for t in range(0,time):
             d = init_D*10**-6
-            distance_tuple = position(t,293.15,60,d)
+            distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
             x_d = distance_tuple[0]
             z_d = distance_tuple[1]
             x_d_array.append(x_d)
@@ -165,4 +84,123 @@ if __name__ == '__main__':
     plt.title('Trajectories')
     plt.legend()
     plt.show()
-'''
+
+    return
+
+def diameter_plot(time=50):
+    initial_D_array = [78,85,90,96]
+
+    for init_D in initial_D_array:
+        time_array = []
+        d_array = []
+        for i in range(1,time):
+            t = (i)/(10.0)
+            time_array.append(t)
+            d = init_D*10**-6
+            dm = diameter_polynomial(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
+            d_array.append(dm)
+        plt.plot(time_array,d_array, label = "D_0 = " + str(init_D))
+    plt.xlabel('Time')
+    plt.ylabel('Diameter (m)')
+    plt.title('Diameter vs Time')
+    plt.legend()
+    plt.show()
+
+    return 
+
+def velocity_plot(time):
+    initial_D_array = [78,85,90,96]
+
+    for init_D in initial_D_array:
+        time_array = []
+        vt_array = []
+        for i in range(1,time):
+            t = (i)/(10.0)
+            time_array.append(t)
+            d = init_D*10**-6
+            vt = terminal_velocity(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
+            vt_array.append(vt)
+        plt.plot(time_array,vt_array, label = "D_0 = " + str(init_D))                                   
+    plt.xlabel('Time')
+    plt.ylabel('Terminal Velocity')
+    plt.title('Velocity vs Time')
+    plt.legend()
+    plt.show()
+
+    return
+
+def x_pos_plot(time):
+    time_array = []
+    x_d_array =[]
+    for i in range(1,time):
+        t = (i)/(10.0)
+        time_array.append(t)
+        d = 85*10**-6
+        distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
+        x_d = distance_tuple[0]
+        x_d_array.append(x_d)
+    plt.plot(time_array,x_d_array, label = "x_d vs time for all D_0's")
+    plt.xlabel('Time')
+    plt.ylabel('X position')
+    plt.title('X Position vs Time')
+    plt.legend()
+    plt.show()
+
+    return
+
+def z_pos_plot(time):
+    initial_D_array = [78,85,90,96]
+
+    for init_D in initial_D_array:
+        time_array = []
+        z_d_array = []
+        for i in range(1,time):
+            t = (i)/(10.0)
+            time_array.append(t)
+            d = init_D*10**-6
+            distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
+            z_d = distance_tuple[1]
+            z_d_array.append(z_d)
+        plt.plot(time_array,z_d_array, label = "D_0 = " + str(init_D)) 
+    plt.xlabel('Time')
+    plt.ylabel('Z position')
+    plt.title('Z Position vs Time')
+    plt.legend()
+    plt.show()
+    
+    return
+
+def concentration_plot(time):
+    initial_D_array = [78,85,90,96]
+
+    for init_D in initial_D_array:
+        time_array = []
+        conc_array = []
+        for i in range(1,time):
+            t = (i)/(10.0)
+            time_array.append(t)
+            d = init_D*10**-6
+            conc = concentration(t,X_AWAY,TEMPERATURE,RELATIVE_HUMIDITY,d)
+            conc_array.append(conc)
+        plt.plot(time_array,conc_array, label = "D_0 = " + str(init_D))
+    plt.xlabel('Time')
+    plt.ylabel('Concentration')
+    plt.title('Concentration vs Time')
+    plt.legend()
+    plt.show()
+
+    return
+
+#example usage, for testing
+if __name__ == '__main__':
+#   proximity_plot(5)
+#   temp_plot(5)
+#   humidity_plot(5)
+
+#intermediary plots: D(t), v(t), z(t), x(t), and trajectory
+#    trajectories(10)
+#    diameter_plot(50)
+#     velocity_plot(50)
+#     x_pos_plot(50)
+#     z_pos_plot(50)
+#     concentration_plot(50)
