@@ -5,6 +5,7 @@ from REM import diameter_polynomial,terminal_velocity,position,concentration,exp
 RELATIVE_HUMIDITY = 60 #default relative humidity
 TEMPERATURE = 293.15 #default ambient temperature in Kelvin
 X_AWAY = 2 #default distance 2 meters away from source 
+N_FACTOR = total_exposure(5,X_AWAY,TEMPERATURE,RELATIVE_HUMIDITY,1*10**-6)
 
 def proximity_plot(time):
     initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
@@ -14,7 +15,7 @@ def proximity_plot(time):
         print(x)
         for init_D in initial_D_list:
             print(init_D)
-            exposure = total_exposure(time,x,TEMPERATURE,RELATIVE_HUMIDITY,init_D)/(15.43592275) #normalize the curves
+            exposure = total_exposure(time,x,TEMPERATURE,RELATIVE_HUMIDITY,init_D)/N_FACTOR #normalize the curves
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "x_away = " + str(x))
     plt.xlabel('Droplet Size')
@@ -34,7 +35,7 @@ def temp_plot(time):
         print(temp_k)
         for init_D in initial_D_list:
             print(init_D)
-            exposure = total_exposure(time,X_AWAY,temp_k,RELATIVE_HUMIDITY,init_D)/(15.43592275) #normalize the curves
+            exposure = total_exposure(time,X_AWAY,temp_k,RELATIVE_HUMIDITY,init_D)/N_FACTOR #normalize the curves
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "T = " + str(temp))
     plt.xlabel('Droplet Size')
@@ -43,7 +44,7 @@ def temp_plot(time):
     plt.legend()
     plt.show() 
 
-	return 
+    return 
 
 def humidity_plot(time):
     initial_D_list = list(np.arange(1*10**-6, 1*10**-4, 2*10**-6))
@@ -53,7 +54,7 @@ def humidity_plot(time):
         print(r)
         for init_D in initial_D_list:
             print(init_D)
-            exposure = total_exposure(time,r,init_D)/(15.435922858566114)
+            exposure = total_exposure(time,X_AWAY,TEMPERATURE,r,init_D)/N_FACTOR #normalize the curves
             exposure_array.append(exposure)
         plt.plot(initial_D_list,exposure_array, label = "RH = " + str(r))
     plt.xlabel('Droplet Size')
@@ -62,12 +63,14 @@ def humidity_plot(time):
     plt.legend()
     plt.show() 
 
-	return 
+    return 
 
+#example usage, for testing
 if __name__ == '__main__':
-#	proximity_plot(5)
-	temp_plot(5)
-#	humidity_plot(5)
+   proximity_plot(5)
+#   temp_plot(5)
+#    humidity_plot(5)
+
 
 '''
 # D(t), v(t), z(t), x(t), and trajectory plots
