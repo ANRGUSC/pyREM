@@ -18,20 +18,22 @@ NUMBER_OF_DROPLETS = 1 #number of droplets emitted (q)
 X_0 = 0 #initial horizontal position
 Z_0 = 0 #initial vertical position
 RESPIRATORY_RATE = 0.25 #avg number of breaths/second 
-V_X = 1 #horizontal velocity of air surrounding the droplets in m/s
+V_X = 1 #horizontal velocity of the air surrounding the droplets in m/s
 RELATIVE_HUMIDITY = 60 #default relative humidity
 TEMPERATURE = 293.15 #default ambient temperature in Kelvin
 X_AWAY = 2 #default distance 2 meters away from source 
 
 
 def diameter_polynomial(time,temp,r_h,initial_D): 
-    '''This function estimates the droplet's diameter in micrometers 
-    as a function of time and initital size by finding the real roots of 
-    the diameter polynomial. If the roots are complex, the droplet diameter has 
-    reached its minimum, dmin, and is estimated as a percentage of the initial diameter. 
+    '''This function estimates the droplet's diameter in micrometers  
+    by finding the real roots of the diameter polynomial. If the roots are complex, 
+    the droplet diameter has reached its minimum, dmin, and is estimated at time = t_crit,
+    where the discrimiant of the polynomial is zero.
 
     Parameters:
         time (float): time at which the droplet diameter will be calculated
+        temp (float): ambient temperature in Kelvin 
+        r_h (int): relative humidity 
         initial_D (float): initial droplet size in micrometers
                     
     Returns:
@@ -47,28 +49,28 @@ def diameter_polynomial(time,temp,r_h,initial_D):
     m = -initial_D**2
     p = np.poly1d([1, 0, m, 0, k])
     roots = max(np.roots(p))
+    
+    if time <= t_crit:
+        d = roots
+    else:
+       d = diameter_polynomial(t_crit,temp,r_h,initial_D)
+#    d = roots
 
-#    if time <= t_crit:
-#        d = roots
-#    else:
-#        d = diameter_polynomial(t_crit,temp,r_h,initial_D)
-
-#    return d
-    d = roots
-
-    if np.iscomplex(d) == True:
-        d = 0.71*initial_D
+#    if np.iscomplex(d) == True:
+#        d = 0.71*initial_D
 
     return d
 
 
 def terminal_velocity(time,temp,r_h,initial_D):
-    '''This function estimates the terminal velocity in m/s of the droplet as a function of time 
-    and initial droplet size. For small velocities, v_t is calculated using Stoke's Law. Otherwise,
-    it is calculated by finding the roots of the velocity exponential.
+    '''This function estimates the terminal velocity in m/s of the droplet as a function of time, 
+    temperature, humidity and initial droplet size. For small velocities, v_t is calculated 
+    using Stoke's Law. Otherwise, it is calculated by finding the roots of the velocity exponential.
 
     Parameters:
         time (float): time at which the terminal velocity will be calculated
+        temp (float): ambient temperature in Kelvin 
+        r_h (int): relative humidity 
         initial_D (float): initial droplet size in micrometers
 
     Returns: 
@@ -88,18 +90,19 @@ def terminal_velocity(time,temp,r_h,initial_D):
     return v_t
 
 def position(time,temp,r_h,initial_D): 
-    ''' This function estimates the horizontal and vertical distance of droplet after t seconds. 
+    ''' This function estimates the horizontal and vertical position of droplet after t seconds. 
     The vertical distance, z_d, is calculated using an integral since the terminal velocity continues 
     to change until the droplet's diameter reaches its minimum, dmin.
 
     Parameters:
         time (float): time at which the x_d and z_d values are calculated
+        temp (float): ambient temperature in Kelvin 
+        r_h (int): relative humidity 
         initial_D (float): initial droplet size in micrometers
 
     Returns: 
         (x_d,z_d): a 2-tuple of float values containing the x and z positions of the droplet in meters
-        after t seconds.
-    ''' 
+    '''	
     if time <= 0:
         return (X_0, Z_0)
 
@@ -119,18 +122,21 @@ def position(time,temp,r_h,initial_D):
     return distance_tuple
 
 def concentration(time,x_away,temp,r_h,initial_D): 
-    ''' Each breath is modeled as an ever expanding Gaussian distribution or puff containing
+    ''' Each breath is modeled as an expanding Gaussian puff containing
     thousands of respiratory droplets. This function estimates the concentration of the puff at a 
     particular time. 
 
     Parameters:
-        time (float): time in seconds
+        time (float): time in seconds 
+        x_away (float): distance x meters away from an infected source 
+        temp (float): ambient temperature in Kelvin 
+        r_h (int): relative humidity 
         initial_D (float): initial droplet size in micrometers
 
     Returns: 
         conc_of_puff (float): a float value representing the concentration of the puff that interacts with a 
-        person 2 meters from the infected source.
-    ''' 
+        person x meters from an infected source.
+    '''	
     distance_tuple = position(time,temp,r_h,initial_D)
     x_d = distance_tuple[0]
     z_d = distance_tuple[1]
@@ -146,6 +152,9 @@ def exposure_per_breath(time,x_away,temp,r_h,initial_D):
 
     Parameters:
         time (float): time in seconds that represents the upper limit of the integral
+        x_away (float): distance x meters away from the infected source 
+        temp (float): ambient temperature in Kelvin 
+        r_h (int): relative humidity 
         initial_D (float): initial droplet size in micrometers
 
     Returns: 
@@ -153,7 +162,7 @@ def exposure_per_breath(time,x_away,temp,r_h,initial_D):
         concentration of the puff integrated over time and the possible 
         numerical error in the integrand from the use of quad 
     ''' 
-    exposure = integrate.quad(concentration, 0, time, args=(x_away,temp,r_h,initial_D,), limit=50) #integrate with respect to time
+    exposure = integrate.quad(concentration, 0, time, args=(x_away,temp,r_h,initial_D,), limit=50) #integrating with respect to time
 
     return exposure
 
@@ -163,7 +172,10 @@ def total_exposure(time,x_away=X_AWAY,temp=TEMPERATURE,r_h=RELATIVE_HUMIDITY, in
 
     Parameters:
         time (float): time in seconds
-        initial_D (float): initial droplet size in micrometers
+        x_away (float): proximity set to the default value of 2 meters
+        temp (float): temperature set to the default value of 293.15 K (20 C)
+        r_h (int): humidity set to the default value of 60
+        initial_D (float): initial droplet size set to the default value of 10 um
 
     Returns: 
         total_dosage (float): a float value representing the total dosage a person 
@@ -181,97 +193,4 @@ def total_exposure(time,x_away=X_AWAY,temp=TEMPERATURE,r_h=RELATIVE_HUMIDITY, in
 #example usage, for testing
 if __name__ == '__main__':
     total_exposure(5) #total accumulated exposure after 5 seconds 
-'''
-# D(t), v(t), z(t), x(t), and trajectory plots
-
-    initial_D_array = [93]
-
-    for init_D in initial_D_array:
-        time_array = []
-        x_d_array =[]
-        z_d_array = []
-        vt_array = []
-        d_array = []
-        conc_array = []
-        for i in range(1,50):
-            t = (i)/(10.0)
-            time_array.append(t)
-            d = init_D*10**-6
-
-            distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            x_d = distance_tuple[0]
-            x_d_array.append(x_d)
-
-            z_d = distance_tuple[1]
-            z_d_array.append(z_d)
-
-            vt = terminal_velocity(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            vt_array.append(vt)
-
-            dm = diameter_polynomial(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            d_array.append(dm)
-
-            conc = concentration(t,X_AWAY,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            conc_array.append(conc)
-
-# X position vs Time Plot
-#        plt.plot(time_array,x_d_array, label = "D_0 = " + str(init_D))
-#    plt.xlabel('Time')
-#    plt.ylabel('X position')
-#    plt.title('X Position vs Time')
-#    plt.legend()
-#    plt.show()
-
-# Z position vs Time plot       
-#        plt.plot(time_array,z_d_array, label = "D_0 = " + str(init_D)) 
-#    plt.xlabel('Time')
-#    plt.ylabel('Z position')
-#    plt.title('Z Position vs Time')
-#    plt.legend()
-#    plt.show()
-
-# Terminal Velocity vs Time plot
-#        plt.plot(time_array,vt_array, label = "D_0 = " + str(init_D))                                   
-#    plt.xlabel('Time')
-#    plt.ylabel('Terminal Velocity')
-#    plt.title('Velocity vs Time')
-#    plt.legend()
-#    plt.show()
-
-    # Diameter vs Time plot
-#        plt.plot(time_array,d_array, label = "D_0 = " + str(init_D))
-#    plt.xlabel('Time')
-#    plt.ylabel('Diameter (m)')
-#    plt.title('Diameter vs Time')
-#    plt.legend()
-#    plt.show()
-
-    # Concentration vs Time plot
-#        plt.plot(time_array,conc_array, label = "D_0 = " + str(init_D))
-#    plt.xlabel('Time')
-#    plt.ylabel('Concentration')
-#    plt.title('Concentration vs Time')
-#    plt.legend()
-#    plt.show()
-'''
-'''
-# plot for trajectories
-    initial_D_array = [78,85,90,96]
-
-    for init_D in initial_D_array:
-        x_d_array = []
-        z_d_array = []
-        for t in range(0,10):
-            d = init_D*10**-6
-            distance_tuple = position(t,293.15,60,d)
-            x_d = distance_tuple[0]
-            z_d = distance_tuple[1]
-            x_d_array.append(x_d)
-            z_d_array.append(z_d)
-        plt.plot(x_d_array,z_d_array, label = "D_0 = " + str(init_D))
-    plt.xlabel('Z position')
-    plt.ylabel('Z position')
-    plt.title('Trajectories')
-    plt.legend()
-    plt.show()
-'''
+    
