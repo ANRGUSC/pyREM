@@ -65,30 +65,9 @@ def humidity_plot(time):
 
     return 
 
-def trajectories(time=10):
-    initial_D_array = [78,85,90,96]
-
-    for init_D in initial_D_array:
-        x_d_array = []
-        z_d_array = []
-        for t in range(0,time):
-            d = init_D*10**-6
-            distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
-            x_d = distance_tuple[0]
-            z_d = distance_tuple[1]
-            x_d_array.append(x_d)
-            z_d_array.append(z_d)
-        plt.plot(x_d_array,z_d_array, label = "D_0 = " + str(init_D))
-    plt.xlabel('Z position')
-    plt.ylabel('Z position')
-    plt.title('Trajectories')
-    plt.legend()
-    plt.show()
-
-    return
-
+#functions for intermediary plots
 def diameter_plot(time=50):
-    initial_D_array = [78,85,90,96]
+    initial_D_array = [10,33,75,92]
 
     for init_D in initial_D_array:
         time_array = []
@@ -109,7 +88,7 @@ def diameter_plot(time=50):
     return 
 
 def velocity_plot(time):
-    initial_D_array = [78,85,90,96]
+    initial_D_array = [10,33,75,92]
 
     for init_D in initial_D_array:
         time_array = []
@@ -149,7 +128,7 @@ def x_pos_plot(time):
     return
 
 def z_pos_plot(time):
-    initial_D_array = [78,85,90,96]
+    initial_D_array = [10,33,75,92]
 
     for init_D in initial_D_array:
         time_array = []
@@ -167,11 +146,32 @@ def z_pos_plot(time):
     plt.title('Z Position vs Time')
     plt.legend()
     plt.show()
-    
+    return
+
+def trajectories(time=10):
+    initial_D_array = [10,33,75,92]
+
+    for init_D in initial_D_array:
+        x_d_array = []
+        z_d_array = []
+        for t in range(0,time):
+            d = init_D*10**-6
+            distance_tuple = position(t,TEMPERATURE,RELATIVE_HUMIDITY,d)
+            x_d = distance_tuple[0]
+            z_d = distance_tuple[1]
+            x_d_array.append(x_d)
+            z_d_array.append(z_d)
+        plt.plot(x_d_array,z_d_array, label = "D_0 = " + str(init_D))
+    plt.xlabel('Z position')
+    plt.ylabel('Z position')
+    plt.title('Trajectories')
+    plt.legend()
+    plt.show()
+
     return
 
 def concentration_plot(time):
-    initial_D_array = [78,85,90,96]
+    initial_D_array = [10,33,75,92]
 
     for init_D in initial_D_array:
         time_array = []
@@ -193,14 +193,15 @@ def concentration_plot(time):
 
 #example usage, for testing
 if __name__ == '__main__':
-#   proximity_plot(5)
-#   temp_plot(5)
-#   humidity_plot(5)
+#	proximity_plot(5)
+#	temp_plot(5)
+#	humidity_plot(5)
 
 #intermediary plots: D(t), v(t), z(t), x(t), and trajectory
-#    trajectories(10)
 #    diameter_plot(50)
 #     velocity_plot(50)
 #     x_pos_plot(50)
 #     z_pos_plot(50)
-#     concentration_plot(50)
+#    trajectories(10)
+#    concentration_plot(50)
+
