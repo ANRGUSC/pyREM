@@ -50,9 +50,11 @@ def diameter_polynomial(time,temp,r_h,initial_D):
     else:
        d = diameter_polynomial(t_crit,temp,r_h,initial_D)
 
+#old hard coded approach 
 #    d = roots
 #    if np.iscomplex(d) == True:
 #        d = 0.71*initial_D
+
     print(d,t_crit)
     return d
 
