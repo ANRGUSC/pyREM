@@ -5,7 +5,7 @@ This repository contains open source python code that can be used to quantify an
 - REM.py: This python file contains a function 'total_exposure()' which takes time, distance, temperature and humidity as inputs and outputs the accumulated viral exposure after t seconds. If specific input parameters are not given, the function uses the default values defined in the original paper: 
 'x_away=2,temp=273.15,r_h=60, initial_D= 10'
 
-Example usage: 'total_exposure(5)'
+Example usage: total_exposure(5)
 
 - plots.py: This python file imports the six functions from REM.py and contains a series of functions that when called will generate the plots of our numerical results. Each function takes time as an input and outputs each figure. 
 
