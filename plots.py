@@ -193,9 +193,9 @@ def concentration_plot(time):
 
 #example usage, for testing
 if __name__ == '__main__':
-#	proximity_plot(5)
-#	temp_plot(5)
-#	humidity_plot(5)
+#    proximity_plot(5)
+#    temp_plot(5)
+#    humidity_plot(5)
 
 #intermediary plots: D(t), v(t), z(t), x(t), and trajectory
 #    diameter_plot(50)
@@ -204,4 +204,3 @@ if __name__ == '__main__':
 #     z_pos_plot(50)
 #    trajectories(10)
 #    concentration_plot(50)
-
