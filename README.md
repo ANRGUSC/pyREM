@@ -3,7 +3,7 @@
 This repository contains open source python code that can be used to quantify an individual’s accumulated exposure to respiratory droplets containing SARS-CoV-2 viral RNA over a given period of time. Our code is based on Professor Gavin Buxton’s “Spreadsheet Model of COVID-19 Transmission” [1] and is a python based implementation of this paper. It contains the following programs.
  
 - REM.py: This python file contains a function `total_exposure()` which takes time, distance, temperature and humidity as inputs and outputs the accumulated viral exposure after t seconds. If specific input parameters are not given, the function uses the default values defined in the original paper: 
-'x_away=2,temp=273.15,r_h=60, initial_D= 10'
+`x_away=2,temp=273.15,r_h=60, initial_D= 10`
 
 Example usage: `total_exposure(5)`
 
