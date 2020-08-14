@@ -54,12 +54,8 @@ def diameter_polynomial(time,temp,r_h,initial_D):
         d = roots
     else:
        d = diameter_polynomial(t_crit,temp,r_h,initial_D)
-#    d = roots
 
-#    if np.iscomplex(d) == True:
-#        d = 0.71*initial_D
-
-    return d
+    return d.real
 
 
 def terminal_velocity(time,temp,r_h,initial_D):
@@ -192,5 +188,4 @@ def total_exposure(time,x_away=X_AWAY,temp=TEMPERATURE,r_h=RELATIVE_HUMIDITY, in
 
 #example usage, for testing
 if __name__ == '__main__':
-    total_exposure(5) #total accumulated exposure after 5 seconds 
-    
+   total_exposure(5) #total accumulated exposure after 5 seconds 
