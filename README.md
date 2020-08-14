@@ -21,5 +21,5 @@ trajectories(10)
 concentration_plot(50)`
  
 Contributors: Radhika Bhuckory (bhuckory@usc.edu) and Bhaskar Krishnamachari (bkrishna@usc.edu), University of Southern California
-[1] Buxton, Gavin, Spreadsheet Model of COVID-19 Transmission: Evaporation and Dispersion of Respiratory Droplets (April 22, 2020). Available at SSRN: (https://ssrn.com/abstract=3582665) or (http://dx.doi.org/10.2139/ssrn.3582665)
+[1] Buxton, Gavin, Spreadsheet Model of COVID-19 Transmission: Evaporation and Dispersion of Respiratory Droplets (April 22, 2020). Available at SSRN: https://ssrn.com/abstract=3582665 or http://dx.doi.org/10.2139/ssrn.3582665
 
