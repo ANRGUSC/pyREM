@@ -10,15 +10,15 @@ Example usage: `total_exposure(5)`
 - plots.py: This python file imports the functions from REM.py and contains a series of functions that will generate the figures of our numerical results. Each function takes in time as an input and outputs the corresponding plot for the respective variable(s). 
 
 Example usages:  
-`proximity_plot(5)
-temp_plot(5)
-humidity_plot(5)   
-diameter_plot(50)
-velocity_plot(50)
-x_pos_plot(50)
-z_pos_plot(50)
-trajectories(10)
-concentration_plot(50)`
+`proximity_plot(5)`
+`temp_plot(5)`
+`humidity_plot(5)`   
+`diameter_plot(50)`
+`velocity_plot(50)`
+`x_pos_plot(50)`
+`z_pos_plot(50)`
+`trajectories(10)`
+`concentration_plot(50)`
  
  
  
