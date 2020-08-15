@@ -7,7 +7,7 @@ This repository contains open source python code that can be used to quantify an
 
 Example usage: `total_exposure(5)`
 
-- plots.py: This python file imports the functions from REM.py and contains a series of functions that will generate figures of the numerical results when called. Each function takes in time as an input and outputs the corresponding plot for the respective variable(s). 
+- plots.py: This python file imports the functions from REM.py and contains a series of functions that will generate the figures of our numerical results. Each function takes in time as an input and outputs the corresponding plot for the respective variable(s). 
 
 Example usages:  
 `proximity_plot(5)
