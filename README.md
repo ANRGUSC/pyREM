@@ -7,7 +7,7 @@ This repository contains open source python code that can be used to quantify an
 
 Example usage: `total_exposure(5)`
 
-- plots.py: This python file imports the six functions from REM.py and contains a series of functions that when called will generate the plots of our numerical results. Each function takes time as an input and outputs each figure. 
+- plots.py: This python file imports the functions from REM.py and contains a series of functions that will generate figures of the numerical results when called. Each function takes in time as an input and outputs the corresponding plot for the respective variable(s). 
 
 Example usages:  
 `proximity_plot(5)
@@ -20,6 +20,9 @@ z_pos_plot(50)
 trajectories(10)
 concentration_plot(50)`
  
+ 
 Contributors: Radhika Bhuckory (bhuckory@usc.edu) and Bhaskar Krishnamachari (bkrishna@usc.edu), University of Southern California
+
+
 [1] Buxton, Gavin, Spreadsheet Model of COVID-19 Transmission: Evaporation and Dispersion of Respiratory Droplets (April 22, 2020). Available at SSRN: https://ssrn.com/abstract=3582665 or http://dx.doi.org/10.2139/ssrn.3582665
 
