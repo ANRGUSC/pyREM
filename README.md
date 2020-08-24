@@ -26,8 +26,8 @@ Example usages:
 Contributors: Radhika Bhuckory (bhuckory@usc.edu) and Bhaskar Krishnamachari (bkrishna@usc.edu), University of Southern California
 
 
-[1] Buxton, Gavin, Spreadsheet Model of COVID-19 Transmission: Evaporation and Dispersion of Respiratory Droplets (April 22, 2020). Available at SSRN: https://ssrn.com/abstract=3582665 or http://dx.doi.org/10.2139/ssrn.3582665
+[1] Buxton, Gavin. Spreadsheet Model of COVID-19 Transmission: Evaporation and Dispersion of Respiratory Droplets, Spreadsheets in Education, vol 12, no. 2, May 2020. Available online at: https://sie.scholasticahq.com/article/12861-spreadsheet-model-of-covid-19-transmission-evaporation-and-dispersion-of-respiratory-droplets
 
-[2] Radhika Bhuckory, Bhaskar Krishnamachari, PyREM: Implementing a Computational Model of Airborne Respiratory Droplet-based Virus Transmission, August 2020. 
+[2] Radhika Bhuckory, Bhaskar Krishnamachari, PyREM: Implementing a Computational Model of Airborne Respiratory Droplet-based Virus Transmission, August 2020. Available at: https://drive.google.com/file/d/1YRjrCPB-DJzI-D1QDt_r1pjvD4-NHt5R/view?usp=sharing
 
 
