@@ -28,6 +28,7 @@ Contributors: Radhika Bhuckory (bhuckory@usc.edu) and Bhaskar Krishnamachari (bk
 
 [1] Buxton, Gavin. Spreadsheet Model of COVID-19 Transmission: Evaporation and Dispersion of Respiratory Droplets, Spreadsheets in Education, vol 12, no. 2, May 2020. Available online at: https://sie.scholasticahq.com/article/12861-spreadsheet-model-of-covid-19-transmission-evaporation-and-dispersion-of-respiratory-droplets
 
-[2] Radhika Bhuckory, Bhaskar Krishnamachari, PyREM: Implementing a Computational Model of Airborne Respiratory Droplet-based Virus Transmission, August 2020. Available at: https://drive.google.com/file/d/1YRjrCPB-DJzI-D1QDt_r1pjvD4-NHt5R/view?usp=sharing
+[2] Radhika Bhuckory, Bhaskar Krishnamachari, PyREM: Implementing a Computational Model of Airborne Respiratory Droplet-based Virus Transmission, August 2020. Available at: https://github.com/ANRGUSC/pyREM/blob/master/PyREM_TechReport_August2020.pdf
+
 
 
