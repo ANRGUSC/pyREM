@@ -162,7 +162,7 @@ def trajectories(time=10):
             x_d_array.append(x_d)
             z_d_array.append(z_d)
         plt.plot(x_d_array,z_d_array, label = "D_0 = " + str(init_D))
-    plt.xlabel('Z position')
+    plt.xlabel('X position')
     plt.ylabel('Z position')
     plt.title('Trajectories')
     plt.legend()
